@@ -1,0 +1,6 @@
+{
+  "what": "A made level as the server keeps it (the design core.js customLevel() gave back), written by --capture.",
+  "captured": {"made_v":0,"core_js":"da04a31b47d522d8","on":"2026-11-18"},
+  "print": "935404cbcb8b7557",
+  "spec": {"name":"Tiny","author":"anonymous","world":0,"seed":606874,"sections":[{"kind":"gates","beats":16,"speed":10,"wide":true,"taps":[1,3],"posts":0.3,"springs":0.15,"blowers":0.15,"thick":0.2,"saws":1,"bonus":false}]}
+}

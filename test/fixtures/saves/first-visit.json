@@ -1,0 +1,5 @@
+{
+  "what": "A browser that has never opened the game: nothing is kept.",
+  "store": {},
+  "want": { "settings": { "music": true, "sfx": true, "buzz": true, "easy": false, "diff": -1 }, "levels": [], "franks": [], "bad": [], "v": 2 }
+}

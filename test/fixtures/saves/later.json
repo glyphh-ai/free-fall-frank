@@ -1,0 +1,14 @@
+{
+  "what": "As a LATER build might keep it, read by this one after a rollback: a higher version, a setting and a field of a made level this build does not know, and a made level written as a version this build cannot build. Everything is kept; what cannot be built is left off the cards, not out of the browser.",
+  "store": {
+    "fff.v": "9",
+    "fff.did": "0d9b7a52-64f0-4f0e-b8f1-3f6f0a4f7c20",
+    "fff.splash": "1", "fff.intro": "1", "fff.howto": "1",
+    "fff.frank": "1", "fff.name": "Chris",
+    "fff.set": "{\"music\":true,\"sfx\":true,\"buzz\":true,\"easy\":false,\"diff\":1,\"haptics\":\"strong\",\"hand\":\"left\"}",
+    "fff.far.0": "100", "fff.top.0": "20110", "fff.far.moon": "12",
+    "fff.levels": "[{\"v\":1,\"id\":\"k3m9x2a\",\"name\":\"Tiny\",\"author\":\"anonymous\",\"world\":0,\"seed\":606874,\"stars\":3,\"sections\":[{\"kind\":\"gates\",\"beats\":16,\"speed\":10,\"wide\":true,\"taps\":[1,3],\"posts\":0.3,\"springs\":0.15,\"blowers\":0.15,\"thick\":0.2,\"saws\":1,\"bonus\":false}]},{\"v\":9,\"id\":\"z9y8x7w\",\"name\":\"From Tomorrow\",\"author\":\"Later\",\"world\":2,\"seed\":5,\"sections\":[{\"kind\":\"zipline\",\"beats\":16}]}]",
+    "fff.franks": "[{\"id\":\"f81c2d0\",\"name\":\"BOLT\",\"head\":\"#ffd23f\",\"torso\":\"#23d5d5\",\"legs\":\"#3b3f8f\",\"hair\":\"#ff7b00\",\"hat\":\"crown\",\"extra\":\"visor tie\",\"cape\":\"#ff0000\"}]"
+  },
+  "want": { "settings": { "music": true, "sfx": true, "buzz": true, "easy": false, "diff": 1, "haptics": "strong", "hand": "left" }, "levels": ["k3m9x2a", "z9y8x7w"], "franks": ["f81c2d0"], "bad": [], "v": 9 }
+}

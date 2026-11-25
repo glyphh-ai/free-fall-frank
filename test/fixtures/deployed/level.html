@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Fall Frank: the level, top to bottom</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#15131f">
+<style>
+  html, body { margin: 0; height: 100%; background: #0d0b16; color: #e9e6f5; font: 13px/1.4 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  header { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; padding: 8px 12px; height: 34px; box-sizing: border-box; overflow: hidden; }
+  header b { color: #ffd23f; }
+  .key { display: inline-flex; align-items: center; gap: 5px; color: #b9b4d0; }
+  .key i { display: inline-block; width: 12px; height: 12px; }
+  button { background: #2a2444; color: #fff; border: 1px solid #4a4370; border-radius: 5px; padding: 3px 10px; font: inherit; cursor: pointer; }
+  button.on { background: #ff4fd8; border-color: #ff4fd8; }
+  #wrap { overflow: auto; height: calc(100% - 34px); }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<!-- The whole level drawn out, read like a page: each strip is a slice of the fall, top to bottom, then on to the
+     next strip on the right. Made from the same code the game builds the level with (core.js), so it is what is played. -->
+<header>
+  <b id="title">Level</b>
+  <button id="fit" class="on">Whole level</button><button id="big">Close up</button>
+  <span class="key"><i style="background:#8b84b8"></i>wall or gate</span>
+  <span class="key"><i style="background:#ffffff"></i>Frank's path (the taps the game's own solution makes)</span>
+  <span class="key"><i style="background:#35e8ff"></i>the other path round a fork</span>
+  <span class="key"><i style="background:#ffd23f"></i>coin</span>
+  <span class="key"><i style="background:#ff9a3d"></i>post (tap too early and he lands on it)</span>
+  <span class="key"><i style="background:#ff4f6d"></i>spring / saw</span>
+  <span class="key"><i style="background:#3d7bff"></i>blower</span>
+  <span class="key"><i style="background:#ff3df2"></i>bonus portal</span>
+</header>
+<div id="wrap"><canvas id="c"></canvas></div>
+<script src="core.js"></script>
+<script>
+'use strict';
+const C = window.FFFCore, frank = +(new URLSearchParams(location.search).get('frank') || 0);
+const L = C.buildLevel(C.specFor(frank));
+const COLS = C.WIDE, PAD = 1;                    // a column of margin each side of a strip
+// one colour per stretch, so the stretches can be told apart at a glance
+const TINT = { street: '#7d8296', manhole: '#8b84b8', shaft: '#7f8fd0', sewer: '#58b98a', chute: '#d0a04f', vents: '#5fb6d6', riff: '#b48be0', grid: '#d86fc0', storm: '#59c7b4', core: '#e0705a', sky: '#9fc4e8' };
+let big = false;
+
+function draw() {
+  const wrap = document.getElementById('wrap'), cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  const availW = wrap.clientWidth - 4, availH = wrap.clientHeight - 4, rows = L.totalRows, label = 16;
+  // the largest cell that still puts the whole level on one screen (or a fixed big one, scrolled)
+  let cell = 12, strips = 1, per = rows;
+  if (!big) for (cell = 12; cell >= 1; cell -= 0.5) {
+    per = Math.floor((availH - label) / cell); strips = Math.ceil(rows / per);
+    if (strips * ((COLS + PAD * 2) * cell + 10) <= availW) break;
+  } else { per = Math.floor((availH - label) / cell); strips = Math.ceil(rows / per); }
+  const sw = (COLS + PAD * 2) * cell + 10, dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(strips * sw * dpr); cv.height = Math.round((per * cell + label) * dpr);
+  cv.style.width = strips * sw + 'px'; cv.style.height = per * cell + label + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = '#0d0b16'; ctx.fillRect(0, 0, strips * sw, per * cell + label);
+  const X = (row, col) => Math.floor(row / per) * sw + (col + PAD) * cell, Y = (row) => label + (row % per) * cell;
+  const box = (row, col, w, h, colr) => { ctx.fillStyle = colr; ctx.fillRect(X(row, col), Y(row), w * cell + 0.3, h * cell + 0.3); };
+  const posts = L.posts;
+  for (let r = 0; r < rows; r++) {
+    const s = L.sectionAtRow(r), tint = TINT[s.key] || '#8b84b8';
+    box(r, -PAD, COLS + PAD * 2, 1, '#15121f');
+    box(r, s.lo, s.hi - s.lo, 1, '#1d1930');                                   // the open shaft
+    if (s.lo > 0) { box(r, -PAD, s.lo + PAD, 1, '#3a3550'); box(r, s.hi, COLS - s.hi + PAD, 1, '#3a3550'); }   // its side walls
+    else { box(r, -PAD, PAD, 1, '#3a3550'); box(r, COLS, PAD, 1, '#3a3550'); }
+    const mask = L.solids.get(r) || 0;
+    for (let c = 0; c < COLS; c++) if (mask >> c & 1) box(r, c, 1, 1, posts[r + ':' + c] ? '#ff9a3d' : tint);
+  }
+  L.blowers.forEach((b) => { for (let r = b.r0; r <= b.r1; r++) if (r >= 0 && r < rows) { ctx.globalAlpha = 0.3; box(r, 0, COLS, 1, '#3d7bff'); ctx.globalAlpha = 1; } });
+  // the paths: where Frank is at every row, by the level's own solution, and the other way round each fork
+  const foot = (st, r, colr, a) => { const w = st.k % 2 ? 3 : 1; ctx.globalAlpha = a; box(r, st.col, w, 1, colr); ctx.globalAlpha = 1; };
+  L.alts.forEach((sg) => { for (let r = Math.ceil(L.rowAt(sg.a)); r < L.rowAt(sg.b) && r < rows; r++) foot(sg.st, r, '#35e8ff', 0.55); });
+  for (let r = 0; r < rows; r++) foot(L.stateAt(L.beatAtRow(r + 0.5)), r, '#ffffff', 0.5);
+  L.tokens.forEach((k) => { ctx.fillStyle = '#ffd23f'; ctx.fillRect(X(k.row, k.col) + cell * 0.2, Y(k.row) + cell * 0.2, Math.max(1.5, cell * 0.6), Math.max(1.5, cell * 0.6)); });
+  L.springs.forEach((sp) => box(sp.row, sp.col, 1, 1, '#ff4f6d'));
+  L.portals.forEach((p) => box(p.row - 1, p.col - 1, 3, 3, '#ff3df2'));
+  L.saws.forEach((sw2) => { const r = Math.round(L.rowAt((sw2.a + sw2.b) / 2)); for (let rr = Math.round(L.rowAt(sw2.a)); rr < L.rowAt(sw2.b) && rr < rows; rr += 6) { ctx.globalAlpha = 0.5; box(rr, sw2.base - sw2.amp, sw2.amp * 2 + 1, 0.5, '#ff4f6d'); ctx.globalAlpha = 1; } });
+  // where each stretch starts, and how far through the level that is
+  ctx.font = 'bold ' + Math.max(9, Math.min(12, cell * 3)) + 'px -apple-system, Helvetica, Arial, sans-serif'; ctx.textBaseline = 'middle';
+  L.sections.forEach((s, i) => {
+    const r = s.startRow, x = Math.floor(r / per) * sw, y = Y(r);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y - 1, sw - 10, 1.5);
+    const name = (i + 1) + ' ' + s.key + (s.maze ? ' (maze)' : s.riff ? ' (patterns)' : s.mode === 'slide' ? ' (slide)' : '') + ' ' + Math.floor(s.start / L.totalBeats * 100) + '%';
+    const w = ctx.measureText(name).width + 6, ty = Math.max(label + 7, Math.min(y + 8, label + per * cell - 7));
+    ctx.fillStyle = 'rgba(13,11,22,0.85)'; ctx.fillRect(x, ty - 7, w, 14);
+    ctx.fillStyle = TINT[s.key] || '#fff'; ctx.fillText(name, x + 3, ty);
+  });
+  ctx.fillStyle = '#b9b4d0'; ctx.font = '10px -apple-system, Helvetica, Arial, sans-serif';
+  for (let i = 0; i < strips; i++) ctx.fillText(Math.floor(i * per / rows * 100) + '%', i * sw + 2, 8);
+  document.getElementById('title').textContent = 'Level ' + (frank + 1) + ': ' + L.sections.length + ' stretches, ' + L.gates.length + ' gates, ' + L.plan.length + ' taps, ' + Math.round(L.totalBeats * 60 / L.bpm) + ' s, ' + L.alts.length + ' fork steps';
+}
+document.getElementById('fit').onclick = () => { big = false; document.getElementById('fit').className = 'on'; document.getElementById('big').className = ''; draw(); };
+document.getElementById('big').onclick = () => { big = true; document.getElementById('big').className = 'on'; document.getElementById('fit').className = ''; draw(); };
+window.addEventListener('resize', draw);
+draw();
+</script>
+</body>
+</html>

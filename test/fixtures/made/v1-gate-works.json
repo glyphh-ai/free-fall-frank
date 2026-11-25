@@ -1,0 +1,6 @@
+{
+  "what": "A made level as the server keeps it (the design core.js customLevel() gave back), written by --capture.",
+  "captured": {"made_v":1,"core_js":"7144dd095e507506","on":"2026-11-18"},
+  "print": "f1e3e3b0b622dc99",
+  "spec": {"v":1,"name":"Gate Works","author":"Fixture","world":0,"seed":4242,"sections":[{"kind":"gates","beats":48,"speed":10,"wide":true,"look":"grid","taps":[0,4],"posts":0.5,"springs":0.3,"blowers":0.3,"thick":0.5,"saws":3,"bonus":true},{"kind":"gates","beats":32,"speed":13,"wide":false,"look":"storm","taps":[1,2],"posts":0.3,"springs":0.15,"blowers":0.15,"thick":0.2,"saws":1,"bonus":false}]}
+}

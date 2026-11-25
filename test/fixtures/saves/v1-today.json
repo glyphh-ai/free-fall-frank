@@ -1,0 +1,15 @@
+{
+  "what": "As the build that is live on 2026-11-18 keeps it (no version yet): a name, bests on the first level, ROCK BOTTOM and a made level, a made level and a made Frank he opened, a heart, and 37 tokens kept back while the server was away.",
+  "store": {
+    "fff.did": "0d9b7a52-64f0-4f0e-b8f1-3f6f0a4f7c20",
+    "fff.splash": "1", "fff.intro": "1", "fff.howto": "1",
+    "fff.frank": "6", "fff.lv": "rock", "fff.name": "Chris", "fff.tag": "4821",
+    "fff.set": "{\"music\":true,\"sfx\":true,\"buzz\":false,\"easy\":false,\"diff\":2}",
+    "fff.far.0": "100", "fff.top.0": "15230", "fff.far.rock": "41", "fff.top.rock": "9120", "fff.far.k3m9x2a": "100", "fff.top.k3m9x2a": "7410",
+    "fff.levels": "[{\"id\":\"k3m9x2a\",\"name\":\"Tiny\",\"author\":\"anonymous\",\"world\":0,\"seed\":606874,\"sections\":[{\"kind\":\"gates\",\"beats\":16,\"speed\":10,\"wide\":true,\"taps\":[1,3],\"posts\":0.3,\"springs\":0.15,\"blowers\":0.15,\"thick\":0.2,\"saws\":1,\"bonus\":false}]}]",
+    "fff.franks": "[{\"id\":\"f81c2d0\",\"name\":\"BOLT\",\"head\":\"#ffd23f\",\"torso\":\"#23d5d5\",\"legs\":\"#3b3f8f\",\"hair\":\"#ff7b00\",\"hat\":\"crown\",\"extra\":\"visor tie\"}]",
+    "fff.heart.city": "1", "fff.heart.rock": "0",
+    "fff.tokens": "37"
+  },
+  "want": { "settings": { "music": true, "sfx": true, "buzz": false, "easy": false, "diff": 2 }, "levels": ["k3m9x2a"], "franks": ["f81c2d0"], "bad": [], "v": 2 }
+}

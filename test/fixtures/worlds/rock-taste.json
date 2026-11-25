@@ -1,0 +1,6 @@
+{
+  "what": "A paid level's stretches as /api/world hands them out (rock-taste).",
+  "captured": {"world_v":0,"core_js":"da04a31b47d522d8","on":"2026-11-18"},
+  "print": "5655b3554236e975",
+  "spec": {"seed":4242,"bpm":128,"tr":0,"prog":0,"hook":0,"lead":0,"hard":1,"trait":"mix","song":"rock","defs":[{"key":"top","name":"THE TRAPDOOR","theme":"street","style":"intro","mode":"rotate","beats":4,"rpb":8,"gatesAt":[3]},{"mode":"rotate","riff":true,"doubles":true,"every":1,"post":0,"thick":0,"blow":0,"spring":0,"portal":false,"decoys":0,"loose":0,"saws":0,"key":"jaws","name":"THE JAWS","tip":"ZIGZAG BETWEEN THE TEETH","theme":"jaws","vary":[0,1,0],"style":"pulse","teeth":true,"pattern":"lrlrLRlr","beats":32,"rpb":8},{"mode":"rotate","every":2,"minTaps":1,"maxTaps":2,"post":0,"thick":0,"blow":0,"spring":0,"portal":false,"decoys":0,"loose":0,"saws":0,"key":"boiler","name":"THE BOILER ROOM","tip":"THE DOORS SWAP ON THE BEAT","theme":"boiler","vary":[24,1.15,16],"style":"drive","wide":true,"beats":24,"rpb":8,"kinds":["door1","door1","door","door","door","door","door","door","door","door","door"]},{"key":"wall","name":"THE REST IS LOCKED","theme":"boiler","vary":[24,1.15,16],"style":"outro","mode":"rotate","wide":true,"beats":4,"rpb":6,"wall":true}],"secrets":[{"id":"r1","kind":"spot","sec":"boiler","art":"car","at":6}]}
+}

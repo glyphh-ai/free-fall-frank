@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build your own Free Fall Frank level</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#15131f">
+<meta name="description" content="Make your own Free Fall Frank level by talking to Claude, and share the link.">
+<style>
+  :root { --ink: #f1eefc; --dim: #b9b4d0; --pink: #ff4fd8; --cyan: #35e8ff; --gold: #ffd23f; }
+  html, body { margin: 0; background: linear-gradient(#2d1b70, #1a1147 55%, #0c0722) fixed; color: var(--ink); font: 17px/1.55 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 28px 20px 60px; }
+  h1 { font: 700 34px/1.1 "Courier New", monospace; color: var(--gold); margin: 10px 0 6px; text-shadow: 3px 3px 0 #0a0812; }
+  h2 { font: 700 20px/1.2 "Courier New", monospace; color: var(--cyan); margin: 34px 0 8px; }
+  p { margin: 8px 0; }
+  .lead { color: var(--dim); font-size: 18px; }
+  ol { padding-left: 22px; } li { margin: 8px 0; }
+  code, .url { font: 600 15px/1.4 "SF Mono", Menlo, Consolas, monospace; background: #0a0812; border: 1px solid #3b3566; border-radius: 6px; padding: 3px 7px; word-break: break-all; }
+  .box { background: #1c1830; border: 3px solid #0a0812; border-radius: 4px; padding: 14px 16px; margin: 14px 0; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button, a.btn { font: 700 16px "Courier New", monospace; color: #fff; background: var(--pink); border: 3px solid #0a0812; padding: 10px 16px; cursor: pointer; text-decoration: none; display: inline-block; box-shadow: inset 0 -6px 0 rgba(0,0,0,.28), inset 0 5px 0 rgba(255,255,255,.28); }
+  a.btn.alt { background: #3b3f8f; }
+  .say { border-left: 4px solid var(--pink); padding: 2px 0 2px 12px; margin: 10px 0; color: #fff; font-style: italic; }
+  small { color: var(--dim); }
+  a { color: var(--cyan); }
+</style>
+</head>
+<body>
+<main>
+  <a class="btn alt" href="/play">&larr; BACK TO THE GAME</a>
+  <h1>BUILD YOUR OWN LEVEL</h1>
+  <p class="lead">You describe the level. Claude builds it, and gives you a link anyone can play, with its own leaderboard.</p>
+
+  <h2>1. CONNECT FRANK TO CLAUDE</h2>
+  <ol>
+    <li>Open <a href="https://claude.ai/settings/connectors" target="_blank" rel="noopener">claude.ai &rarr; Settings &rarr; Connectors</a> and choose <b>Add custom connector</b>.</li>
+    <li>Name it <b>Free Fall Frank</b> and paste this address:
+      <div class="box row"><span class="url" id="url">https://freefallfrank.com/mcp</span><button id="copy">COPY</button></div>
+    </li>
+    <li>Save, then <b>Connect</b>: you are asked to sign in with Google and allow it. That is what makes the levels and Franks you build yours, on any device.</li>
+  </ol>
+  <p><b>No Google account?</b> In the game, open settings (the sliders, top left) and <b>PROFILE</b>, and copy <i>your connector address</i>: the same address with your own code on the end. Add that instead and there is nothing to sign in to.</p>
+  <p><small>In Claude Code: <code>claude mcp add --transport http frank https://freefallfrank.com/mcp</code></small></p>
+
+  <h2>2. ASK FOR A LEVEL</h2>
+  <p>In a new chat, with the connector switched on, say what you want. For example:</p>
+  <p class="say">Make me a Free Fall Frank level called Lava Run: about a minute, starts easy, a maze in the middle and a brutal finish.</p>
+  <p class="say">Build a level for my little sister: slow, lots of coins, in the candy world.</p>
+  <p class="say">A level made only of patterns, left-left-right-right, getting faster each time.</p>
+  <p>Claude shows you what it will be like, changes it as you say, and publishes it when you are happy.</p>
+
+  <h2>3. PLAY IT AND SHARE IT</h2>
+  <p>You get a link like <code>freefallfrank.com/?level=abc1234</code>. Open it and the level is added to your levels. Send it to anyone: it is free, with nothing to install, and everybody's best score goes on that level's leaderboard.</p>
+  <p><b>The public list.</b> To put a level in front of every player (PLAY THEIR LEVELS in the game), press GO PUBLIC beside it on your profile, or ask Claude to submit it. It is free; we look at each level before it is listed.</p>
+
+  <h2>4. MAKE YOUR OWN FRANK</h2>
+  <p>Ask Claude for a Frank too: a name, his colours, a hat and a few extras.</p>
+  <p class="say">Make me a Frank called Pirate Frank: red shirt, black trousers, an eye patch and a cowboy hat.</p>
+  <p>You get a link; opening it adds him to your Franks. And you can ask Claude to change your name on the leaderboards or the Frank you play as.</p>
+
+  <h2>WHAT A LEVEL CAN HAVE</h2>
+  <div class="box">
+    <p><b>Patterns</b>: a gate every beat, with the taps you choose (left, right, double taps, rests).</p>
+    <p><b>Gates</b>: count your taps, with posts, springs, blowers, saws and bonus rooms.</p>
+    <p><b>Slime</b>: he slides instead of tumbling.</p>
+    <p><b>Mazes</b>: paths that fork and join.</p>
+    <p><b>Drops</b>: a fast fall to catch your breath.</p>
+    <p>And any of the 24 Franks' worlds for its look and its music. Every level can be finished: the game checks.</p>
+  </div>
+  <p><a class="btn" href="/play">PLAY FREE FALL FRANK</a></p>
+</main>
+<script>
+  // someone who came here by an ad link (?src=...) keeps it when they go on to the game, so the ad gets the credit
+  var src = new URLSearchParams(location.search).get('src');
+  if (src) document.querySelectorAll('a[href="/play"]').forEach(function (a) { a.href = '/play?src=' + encodeURIComponent(src); });
+  document.getElementById('copy').onclick = function () {
+    var b = this, u = document.getElementById('url').textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () { b.textContent = 'COPIED'; }, function () { b.textContent = 'SELECT IT ABOVE'; });
+  };
+</script>
+</body>
+</html>

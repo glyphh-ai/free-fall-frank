@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#15131f">
+<title>Free Fall Frank: tap left, tap right, keep falling. Play free in your browser</title>
+<meta name="description" content="Free Fall Frank is a fast tap-left, tap-right falling game for your phone or computer. One long fall, two mazes, four difficulties, 24 Franks, leaderboards, and levels you build yourself by asking Claude. Free in the browser, nothing to install.">
+<link rel="canonical" href="https://freefallfrank.com/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Free Fall Frank">
+<meta property="og:title" content="Free Fall Frank: tap left, tap right, keep falling">
+<meta property="og:description" content="Meet Frank. He keeps falling. Tumble him through the gaps, all the way down. Free in your browser, with levels you build yourself by asking Claude.">
+<meta property="og:url" content="https://freefallfrank.com/">
+<meta property="og:image" content="https://freefallfrank.com/ad4-cover.jpg">
+<meta property="og:image:width" content="1080">
+<meta property="og:image:height" content="1920">
+<meta property="og:image:alt" content="Frank, a little man made of three cubes, tumbling down a shaft between neon gates">
+<meta property="og:video" content="https://freefallfrank.com/landing/hero.mp4">
+<meta property="og:video:type" content="video/mp4">
+<meta property="og:video:width" content="720">
+<meta property="og:video:height" content="1280">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free Fall Frank: tap left, tap right, keep falling">
+<meta name="twitter:description" content="Meet Frank. He keeps falling. Free in your browser, with levels you build yourself by asking Claude.">
+<meta name="twitter:image" content="https://freefallfrank.com/ad4-cover.jpg">
+<script>
+  // Someone who has played on this device before the "played" cookie existed (or whose browser dropped it) still
+  // has the game's own device id: "/" is the game for them. (/about is always this page.)
+  try { if (location.pathname === '/' && localStorage.getItem('fff.did')) location.replace('/play'); } catch (e) { /* no storage: stay here */ }
+  document.documentElement.className = 'js';
+</script>
+<style>
+  /* The game's own colours (game.js titleBack, text, button; index.html #acct) and its type: bold Courier for
+     anything loud, the system face for reading. Blocks with a black edge, a light top and a dark foot, like its buttons. */
+  :root { --ink: #f1eefc; --dim: #b9b4d0; --pink: #ff4fd8; --cyan: #35e8ff; --gold: #ffd23f; --black: #0a0812; --card: #1c1830; --teal: #23a5a5; --indigo: #3b3f8f; --green: #a6ff3d;
+    --loud: "Courier New", Courier, monospace; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  html, body { margin: 0; background: #0c0722; color: var(--ink); font: 17px/1.55 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  body { background: linear-gradient(#2d1b70, #1a1147 55%, #0c0722) fixed; overflow-x: hidden; }
+  #sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  header, main, footer { position: relative; z-index: 1; }
+  main { overflow-x: clip; }                                          /* a tilted phone's corner never widens the page */
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  a { color: var(--cyan); }
+  img { max-width: 100%; }
+  h1, h2, h3, .loud { font-family: var(--loud); font-weight: 700; }
+  h2 { font-size: clamp(30px, 5vw, 48px); line-height: 1.05; color: var(--gold); margin: 0 0 14px; text-shadow: 3px 3px 0 var(--black); }
+  h3 { font-size: 21px; line-height: 1.2; color: var(--cyan); margin: 0 0 6px; }
+  p { margin: 10px 0; }
+  .kick { font: 700 15px var(--loud); color: var(--pink); letter-spacing: 0.08em; margin: 0 0 8px; }
+  .dim { color: var(--dim); }
+  .btn { font: 700 20px var(--loud); color: #fff; background: var(--pink); border: 3px solid var(--black); padding: 14px 26px; cursor: pointer; text-decoration: none; display: inline-block; text-align: center;
+    box-shadow: inset 0 -7px 0 rgba(0,0,0,.28), inset 0 6px 0 rgba(255,255,255,.28); text-shadow: 2px 2px 0 rgba(0,0,0,.6); transition: transform .08s; }
+  .btn:hover { transform: translateY(-2px); } .btn:active { transform: translateY(2px); }
+  .btn.big { font-size: 26px; padding: 18px 44px; }
+  .btn.alt { background: var(--indigo); } .btn.teal { background: var(--teal); } .btn.gold { background: #e0a100; }
+  .btn.small { font-size: 15px; padding: 9px 14px; }
+  :focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+
+  /* the bar along the top */
+  header { position: sticky; top: 0; z-index: 5; background: rgba(21, 19, 31, 0.92); border-bottom: 3px solid var(--black); }
+  header .wrap { display: flex; align-items: center; gap: 18px; height: 60px; }
+  .mark { font: 700 20px var(--loud); text-decoration: none; color: var(--gold); text-shadow: 2px 2px 0 var(--black); white-space: nowrap; }
+  .mark small { font-size: 14px; color: var(--cyan); margin-right: 6px; }
+  nav { margin-left: auto; display: flex; gap: 18px; }
+  nav a { font: 700 15px var(--loud); color: #fff; text-decoration: none; } nav a:hover { color: var(--gold); }
+  header .btn { margin-left: 6px; }
+  @media (max-width: 760px) { nav { display: none; } header .btn { margin-left: auto; } }
+
+  /* the hero: the gameplay video in a phone beside the name and PLAY; on a phone the video is the hero itself.
+     Nothing is ever laid over the video: the sound button sits under it. */
+  .hero { display: grid; grid-template-columns: 1fr auto; gap: 56px; align-items: center; padding-top: 44px; padding-bottom: 64px; }
+  .hero h1 { margin: 0; line-height: 0.92; font-size: clamp(64px, 11vw, 150px); color: var(--gold); text-shadow: 6px 6px 0 var(--black); }
+  .hero h1 small { display: block; font-size: 0.5em; color: var(--cyan); text-shadow: 4px 4px 0 var(--black); margin-bottom: 8px; }
+  .story { font: 700 clamp(18px, 2.2vw, 24px)/1.35 var(--loud); margin: 22px 0 6px; }
+  .story em { font-style: normal; color: var(--pink); } .story b { color: var(--cyan); }
+  .hero .cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-top: 22px; }
+  .free { font: 700 14px var(--loud); color: var(--green); margin-top: 14px; }
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .under { display: flex; gap: 12px; align-items: center; justify-content: center; }
+  .mob { display: none; }                                             /* PLAY right under the video, on a phone */
+  .phone { background: var(--black); padding: 8px; border-radius: 26px; box-shadow: 0 0 0 3px #4a4370, 10px 12px 0 rgba(0,0,0,.45); width: 250px; max-width: 100%; flex: none; }
+  .phone img, .phone video { display: block; width: 100%; height: auto; aspect-ratio: 390 / 844; object-fit: cover; border-radius: 19px; background: #15131f; }
+  .phone.big { width: 330px; box-shadow: 0 0 0 3px var(--pink), 0 0 0 6px var(--black), 14px 16px 0 rgba(0,0,0,.45); }
+  .phone.big video { aspect-ratio: 9 / 16; }
+  @media (max-width: 860px) {
+    .hero { display: flex; flex-direction: column; gap: 18px; padding-top: 16px; padding-bottom: 44px; text-align: center; }
+    .stage { order: -1; }
+    .phone.big { width: auto; height: min(58vh, 560px); height: min(58svh, 560px); aspect-ratio: 9 / 16; padding: 6px; border-radius: 20px; }
+    .phone.big video { height: 100%; width: 100%; aspect-ratio: auto; border-radius: 15px; }
+    .hero h1 { font-size: clamp(54px, 17vw, 96px); }
+    .hero .cta { justify-content: center; margin-top: 14px; }
+    .mob { display: inline-block; } .hero .cta .btn.big { display: none; }
+    .btn.big.mob { font-size: 22px; padding: 13px 24px; }
+    .story { margin-top: 14px; }
+  }
+
+  section { padding: 56px 0; }
+  .band { background: rgba(10, 8, 18, 0.45); border-top: 3px solid var(--black); border-bottom: 3px solid var(--black); }
+
+  /* how it plays: the game's own four panels */
+  .how { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 22px; }
+  .how > div { background: var(--card); border: 3px solid var(--black); box-shadow: inset 0 3px 0 rgba(255,255,255,.08); padding: 14px; }
+  .how canvas { display: block; width: 100%; height: 120px; background: #1f1a33; border: 3px solid var(--black); margin-bottom: 12px; }
+  .how p { margin: 0; color: var(--dim); font-size: 15px; }
+  @media (max-width: 900px) { .how { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px) { .how { gap: 10px; } .how > div { padding: 10px; } .how h3 { font-size: 16px; } .how canvas { height: 96px; } }
+
+  /* a feature: screenshots of the game in phones on one side, the words on the other, swapping sides down the page */
+  .feat { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; padding: 44px 0; }
+  .feat:nth-of-type(even) .shots { order: 2; }
+  .shots { display: flex; justify-content: center; align-items: center; }
+  .shots .phone + .phone { margin-left: -44px; margin-top: 70px; transform: rotate(4deg); }
+  .shots .phone:first-child:not(:only-child) { transform: rotate(-3deg); }
+  .feat ul { padding-left: 20px; margin: 12px 0; } .feat li { margin: 6px 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
+  .chips li { font: 700 13px var(--loud); background: var(--black); border: 2px solid #4a4370; padding: 4px 8px; color: #fff; margin: 0; }
+  .chips li.mz { border-color: var(--pink); color: var(--pink); }
+  @media (max-width: 860px) {
+    .feat { grid-template-columns: 1fr; gap: 38px; padding: 34px 0; }
+    .feat:nth-of-type(even) .shots { order: 0; }
+    .shots .phone { width: min(230px, 56vw); }
+    .shots .phone + .phone { margin-left: -30px; margin-top: 50px; }
+    .shots .phone:not(:only-child) { width: min(180px, 43vw); }
+  }
+
+  /* every Frank, drawn live from franks.js the way the game draws him */
+  .row24 { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; margin-top: 26px; }
+  .row24 figure { margin: 0; background: var(--card); border: 3px solid var(--black); padding: 6px 2px 8px; text-align: center; position: relative; }
+  .row24 canvas { width: 64px; height: 96px; display: block; margin: 0 auto; }
+  .row24 figcaption { font: 700 11px/1.15 var(--loud); color: #fff; min-height: 2.3em; display: flex; align-items: center; justify-content: center; }
+  .row24 .tag { position: absolute; top: -3px; right: -3px; font: 700 10px var(--loud); background: var(--green); color: var(--black); border: 3px solid var(--black); padding: 1px 4px; }
+
+  /* the four difficulties, in the game's own colours for them */
+  .diffs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .diffs div { border: 3px solid var(--black); padding: 10px 12px; color: #fff; box-shadow: inset 0 -6px 0 rgba(0,0,0,.28), inset 0 5px 0 rgba(255,255,255,.22); font-size: 15px; line-height: 1.35; }
+  .diffs b { font: 700 19px var(--loud); display: block; text-shadow: 2px 2px 0 rgba(0,0,0,.6); }
+  @media (max-width: 420px) { .diffs { grid-template-columns: 1fr; } }
+  .say { border-left: 4px solid var(--pink); padding: 2px 0 2px 12px; margin: 12px 0; color: #fff; font-style: italic; }
+  code, .url { font: 600 15px/1.4 "SF Mono", Menlo, Consolas, monospace; background: var(--black); border: 1px solid #3b3566; border-radius: 6px; padding: 3px 7px; display: inline-block; max-width: 100%; overflow-wrap: anywhere; }
+
+  /* pricing */
+  .price { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; align-items: stretch; margin-top: 26px; }   /* three things: the game, the Franks, the second level; the picture under them */
+  .price .shots { grid-column: 1 / -1; }
+  .plan { background: var(--card); border: 3px solid var(--black); padding: 22px; box-shadow: inset 0 3px 0 rgba(255,255,255,.08); display: flex; flex-direction: column; }
+  .plan.paid { box-shadow: 0 0 0 3px var(--gold), 8px 8px 0 rgba(0,0,0,.45); }
+  .plan .amt { font: 700 56px/1 var(--loud); color: #fff; text-shadow: 4px 4px 0 var(--black); margin: 6px 0 2px; }
+  .plan .amt small { font-size: 16px; color: var(--dim); text-shadow: none; }
+  .plan ul { padding-left: 20px; margin: 14px 0 18px; flex: 1; } .plan li { margin: 7px 0; }
+  .price .shots { align-self: center; }
+  @media (max-width: 980px) { .price { grid-template-columns: 1fr 1fr; } .price .shots { grid-column: 1 / -1; } }
+  @media (max-width: 640px) { .price { grid-template-columns: 1fr; } }
+
+  /* the questions: plain <details>, so the keyboard opens them */
+  .faq { max-width: 820px; margin: 22px auto 0; }
+  details { background: var(--card); border: 3px solid var(--black); margin: 10px 0; }
+  summary { font: 700 18px/1.3 var(--loud); color: #fff; padding: 14px 44px 14px 16px; cursor: pointer; list-style: none; position: relative; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 26px; color: var(--gold); }
+  details[open] summary::after { content: '-'; }
+  details[open] summary { color: var(--gold); }
+  details > div { padding: 0 16px 14px; }
+
+  .end { text-align: center; padding: 70px 0 80px; }
+  .end canvas { width: 220px; height: 220px; display: block; margin: 0 auto 8px; }
+  .end h2 { font-size: clamp(34px, 7vw, 64px); }
+  footer { border-top: 3px solid var(--black); background: rgba(10, 8, 18, 0.7); padding: 30px 0 calc(34px + env(safe-area-inset-bottom, 0px)); font-size: 15px; color: var(--dim); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 18px 34px; align-items: center; }
+  footer .made { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--dim); }
+  footer .made img { height: 30px; width: auto; display: block; }
+  footer .links { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  @media (max-width: 640px) { footer .links { margin-left: 0; } }
+
+  /* things rise into place as they are scrolled to (only with scripts on, and only for those who have not asked for less motion) */
+  .js .rv { opacity: 0; transform: translateY(34px); transition: opacity .5s, transform .5s cubic-bezier(.2, 1.4, .4, 1); }
+  .js .rv.in { opacity: 1; transform: none; }
+  .js .shots.rv { transform: translateY(34px) scale(.94); } .js .shots.rv.in { transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .js .rv, .js .shots.rv { opacity: 1; transform: none; transition: none; }
+    .btn { transition: none; } .btn:hover, .btn:active { transform: none; }
+  }
+</style>
+</head>
+<body>
+<!-- The game's landing page: what Free Fall Frank is, shown with the game's own video, screenshots and Franks.
+     Every fact here is the game's: prices and what is free from server.js (FREE, TOKEN_PRICE, PACKS), the
+     difficulties and the scoring from game.js (DIFFS, report), the Franks from franks.js. test/server.cjs checks
+     the prices on this page against the server's. -->
+<canvas id="sky" aria-hidden="true"></canvas>
+<header>
+  <div class="wrap">
+    <a class="mark" href="#top"><small>FREE FALL</small>FRANK</a>
+    <nav aria-label="On this page">
+      <a href="#how">HOW IT PLAYS</a><a href="#features">FEATURES</a><a href="#pricing">PRICING</a><a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn small" href="/play">PLAY</a>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <div>
+      <h1><small>FREE FALL</small>FRANK</h1>
+      <p class="story">Meet Frank. He is a normal guy. <em>But Frank has a problem...</em> he keeps... well... <b>falling down!</b></p>
+      <p class="dim">Tap left. Tap right. Tumble him through the gaps, to the beat, all the way down. Touch anything and it is back to the top.</p>
+      <div class="cta">
+        <a class="btn big" href="/play">PLAY FREE</a>
+        <a class="btn alt" href="#how">HOW IT PLAYS</a>
+      </div>
+      <p class="free">FREE IN YOUR BROWSER. NOTHING TO INSTALL. NO SIGN-UP.</p>
+    </div>
+    <div class="stage">
+      <div class="phone big">
+        <video id="reel" autoplay muted loop playsinline preload="metadata" poster="/landing/hero.jpg" aria-label="Free Fall Frank being played: Frank tumbles down through gates, mazes, slime and saws, at insane speed">
+          <source src="/landing/hero.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="under">
+        <a class="btn big mob" href="/play">PLAY FREE</a>
+        <button class="btn small alt" id="snd" type="button" aria-pressed="false">SOUND: OFF</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="band" id="how">
+    <div class="wrap">
+      <p class="kick">HOW IT PLAYS</p>
+      <h2>TWO THUMBS. ONE PROBLEM.</h2>
+      <div class="how">
+        <div class="rv"><canvas data-how="0" aria-hidden="true"></canvas><h3>TAP LEFT OR RIGHT</h3><p>Frank tumbles that way. On a computer: the arrow keys, or A and D.</p></div>
+        <div class="rv"><canvas data-how="1" aria-hidden="true"></canvas><h3>FIT THROUGH THE GAPS</h3><p>Count your taps: not too early, not too late. Touch anything: back to the top.</p></div>
+        <div class="rv"><canvas data-how="2" aria-hidden="true"></canvas><h3>SLIME: HE SLIDES</h3><p>Too slimy to tumble: a tap slides him one step over instead.</p></div>
+        <div class="rv"><canvas data-how="3" aria-hidden="true"></canvas><h3>GRAB THE TOKENS</h3><p>They earn you new Franks.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap" id="features">
+    <div class="feat">
+      <div class="shots rv"><div class="phone"><img src="/landing/fall.jpg" width="780" height="1688" loading="lazy" alt="The game: Frank upside down in the shaft under Elm Street, the next gates marked with how many taps they need, coins on the way, 3% of the way down"></div></div>
+      <div class="rv">
+        <p class="kick">THE FALL</p>
+        <h2>ONE LONG WAY DOWN</h2>
+        <p>Elm Street. Down the manhole, under the city. It is one level, about three minutes from the street to the bottom at normal speed, with more than 200 gates on the way, and every gate lands on the beat of the music.</p>
+        <p>Each gate needs an exact number of taps one way. Then come the posts, the springs, the blowers, the swinging saws and the bonus rooms.</p>
+        <ul class="chips" aria-label="The stretches of the fall, top to bottom">
+          <li>ELM STREET</li><li>THE MANHOLE</li><li>THE SHAFT</li><li>THE SEWER</li><li>THE SLIDE</li><li class="mz">THE VENTS</li><li>NEON GRID</li><li class="mz">STORM DRAIN</li><li>THE SLIDE</li><li>THE CORE</li><li>DAYLIGHT?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feat">
+      <div class="shots rv">
+        <div class="phone"><img src="/landing/maze.jpg" width="780" height="1688" loading="lazy" alt="A maze stretch: walls run down both sides of Frank's path and the path forks ahead of him"></div>
+        <div class="phone"><img src="/landing/slime.jpg" width="780" height="1688" loading="lazy" alt="The sewer: Frankfurter in a pink duck ring, sliding through the slime between gates"></div>
+      </div>
+      <div class="rv">
+        <p class="kick">MAZES AND SLIME</p>
+        <h2>THE PATHS FORK. PICK ONE. FAST.</h2>
+        <p>Two stretches of the fall are mazes: double taps down paths that fork and join again, with a wall down each side. Either way round gets you through.</p>
+        <p>In the sewer it is too slimy to tumble, so Frank sits in his duck ring and every tap slides him one step across. Then the slide, where he falls twice as fast.</p>
+      </div>
+    </div>
+
+    <div class="feat">
+      <div class="shots rv"><div class="phone"><img src="/landing/franks.jpg" width="780" height="1688" loading="lazy" alt="The Frank picker: Frankfurter, a hot dog in a bun, in the middle of a row of Franks standing on blocks, with a FALL button"></div></div>
+      <div class="rv">
+        <p class="kick">THE FRANKS</p>
+        <h2>24 FRANKS. SAME PROBLEM.</h2>
+        <p>Frankfurter. Frankenfrank. Tank Frank. Disco Frank. Ghost Frank. Every Frank falls down the same level: a Frank is who you play as.</p>
+        <p>Three are yours from the start. The rest you earn with the tokens you pick up as you fall, 250 tokens a Frank, or unlock all at once.</p>
+      </div>
+    </div>
+    <div class="row24 rv" id="row24" aria-label="All 24 Franks"></div>
+
+    <div class="feat">
+      <div class="shots rv"><div class="phone"><img src="/landing/settings.jpg" width="780" height="1688" loading="lazy" alt="The settings screen with the difficulty set to INSANE: everything is 40% faster, scores count double"></div></div>
+      <div class="rv">
+        <p class="kick">FOUR DIFFICULTIES</p>
+        <h2>EASY TO INSANE</h2>
+        <p>The same fall, four ways. Hard and insane play the whole level faster, music and all, and score more for it.</p>
+        <div class="diffs">
+          <div style="background:#5fa83a"><b>EASY</b>A fall sends you back only to the start of the stretch. Tokens count half.</div>
+          <div style="background:#e0a100"><b>NORMAL</b>A fall sends you back to the top.</div>
+          <div style="background:#e0562c"><b>HARD</b>Everything is a fifth faster. Scores count one and a half times.</div>
+          <div style="background:#c2185b"><b>INSANE</b>Everything is 40% faster. Scores count double.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat">
+      <div class="shots rv">
+        <div class="phone"><img src="/landing/board.jpg" width="780" height="1688" loading="lazy" alt="The leaderboard for Elm Street: twelve players ranked by score, each with how far down they got"></div>
+        <div class="phone"><img src="/landing/title.jpg" width="780" height="1688" loading="lazy" alt="The main page: the Elm Street card with TOP and SHARE buttons, a heart, your best fall and best score, and PLAY"></div>
+      </div>
+      <div class="rv">
+        <p class="kick">LEADERBOARDS</p>
+        <h2>CAN YOU BEAT ME?</h2>
+        <p>Every level has its own leaderboard, and it keeps each player's best. The further down you get and the more tokens you grab, the more you score; reaching the bottom is worth a big bonus, and hard and insane multiply the lot.</p>
+        <p>No account needed: you are on the board from your first fall, under a name you can change. Clear the level and the game makes a picture of your win to share, or press REC and film up to a minute of your fall.</p>
+      </div>
+    </div>
+
+    <div class="feat">
+      <div class="shots rv">
+        <div class="phone"><img src="/landing/made.jpg" width="780" height="1688" loading="lazy" alt="A level a player made, Lava Run, on the main page with its own TOP, SHARE and PLAY buttons"></div>
+        <div class="phone"><img src="/landing/madeplay.jpg" width="780" height="1688" loading="lazy" alt="Lava Run being played by a Frank a player made, with an eye patch and a cowboy hat, in the lava world's maze"></div>
+      </div>
+      <div class="rv">
+        <p class="kick">BUILD YOUR OWN, WITH CLAUDE</p>
+        <h2>YOU DESCRIBE IT. CLAUDE BUILDS IT.</h2>
+        <p>Add Frank to Claude as a connector, <span class="url">https://freefallfrank.com/mcp</span>, and say what you want:</p>
+        <p class="say">Make me a Free Fall Frank level called Lava Run: about a minute, starts easy, a maze in the middle and a brutal finish.</p>
+        <p>Claude shows you what it will be like, changes it as you say, and gives you a link. Anyone who opens it plays your level, free, with its own leaderboard. Patterns, gates, slime, mazes and drops, in any of the 24 Franks' worlds for its look and its music, and every level can be finished: the game checks. Ask for a Frank of your own too.</p>
+        <p>Want every player to find it? Put it forward for the public list in the game, PLAY THEIR LEVELS. It is free; each level is looked at before it is listed.</p>
+        <p><a class="btn teal small" href="/build">HOW TO BUILD A LEVEL</a></p>
+      </div>
+    </div>
+
+    <div class="feat" id="rock">
+      <div class="shots rv">
+        <div class="phone"><img src="/landing/rock-teeth.jpg" width="780" height="1688" loading="lazy" alt="ROCK BOTTOM, the second level: Frank zigzags down a narrow shaft between stone teeth with bone spikes"></div>
+        <div class="phone"><img src="/landing/rock-landlord.jpg" width="780" height="1688" loading="lazy" alt="ROCK BOTTOM's boss, THE LANDLORD, a stone face in a top hat at the bottom of the screen: every column glows before it burns except the three Frank is standing in"></div>
+      </div>
+      <div class="rv">
+        <p class="kick">NEW: THE SECOND LEVEL</p>
+        <h2>ROCK BOTTOM</h2>
+        <p>Frank fell out of the bottom of the world. It has a basement. About five minutes straight down, at a faster tempo, with a track of its own.</p>
+        <ul>
+          <li>Gates that bite, doors that swap on the beat, gaps that step sideways, locks with keys, a conveyor, swirls that carry him across, and an arch that swaps left and right</li>
+          <li>Bats, fire from below, stalactites from above, wisps, a grudge that grabs where he was, and THE LANDLORD, who wants his rent</li>
+          <li>Three mazes and four slides: one forks, one goes right round</li>
+          <li>Eight secrets to find</li>
+        </ul>
+        <p>The first stretches are free to try. The whole level is <b id="p-level-2">$0.99</b>, once: a one-time purchase, not refundable.</p>
+        <p><a class="btn gold small" href="/play?level=rock">TRY ROCK BOTTOM</a></p>
+      </div>
+    </div>
+  </div>
+
+  <section class="band" id="pricing">
+    <div class="wrap">
+      <p class="kick">PRICING</p>
+      <h2>FREE. 99 CENTS FOR EVERY FRANK. 99 CENTS FOR THE SECOND LEVEL.</h2>
+      <div class="price">
+        <div class="plan rv">
+          <h3>THE GAME</h3>
+          <p class="amt" id="p-free">$0</p>
+          <ul>
+            <li>The whole first level, top to bottom, on all four difficulties</li>
+            <li>A free taste of the second level, ROCK BOTTOM</li>
+            <li>Three Franks: Frank, Frankfurter and Frankenfrank</li>
+            <li>Any other Frank for 250 tokens, picked up as you fall</li>
+            <li>Leaderboards, and every level players have made</li>
+            <li>Building and sharing your own levels and Franks with Claude</li>
+            <li>No account, nothing to install</li>
+          </ul>
+          <a class="btn" href="/play">PLAY FREE</a>
+        </div>
+        <div class="plan paid rv">
+          <h3>ALL FRANKS</h3>
+          <p class="amt" id="p-pack">$0.99 <small>once</small></p>
+          <ul>
+            <li>Unlocks every Frank at once: the 21 that are not free</li>
+            <li>Yours for good, on any device you sign in on</li>
+            <li>One payment. Not a subscription</li>
+            <li>That is all it changes: the level, the scores and the leaderboards are the same for everyone</li>
+          </ul>
+          <a class="btn gold" href="/play?screen=select">SEE THE FRANKS</a>
+          <p class="dim" style="font-size:14px;margin:12px 0 0">Bought in the game: sign in with Google, pay through Stripe.</p>
+        </div>
+        <div class="plan paid rv">
+          <h3>ROCK BOTTOM</h3>
+          <p class="amt" id="p-level">$0.99 <small>once</small></p>
+          <ul>
+            <li>The second level, all of it: about five minutes, new gates, new things that bite, a boss and eight secrets</li>
+            <li>Its own leaderboard</li>
+            <li>Yours for good, on any device you sign in on</li>
+            <li>One payment. Not a subscription</li>
+            <li>A one-time purchase, not refundable: try the free taste first</li>
+          </ul>
+          <a class="btn gold" href="/play?level=rock">TRY IT FREE</a>
+          <p class="dim" style="font-size:14px;margin:12px 0 0">Bought in the game: sign in, pay through Stripe.</p>
+        </div>
+        <div class="shots rv"><div class="phone"><img src="/landing/store.jpg" width="780" height="1688" loading="lazy" alt="King Frank in the picker with a padlock on his block: $0.99 unlocks every Frank, for good, or earn him with 250 tokens"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <p class="kick" style="text-align:center">FAQ</p>
+      <h2 style="text-align:center">QUESTIONS</h2>
+      <div class="faq">
+        <details>
+          <summary>Is it free?</summary>
+          <div><p>Yes. The game is free in your browser: the first level top to bottom, all four difficulties, the leaderboards, the levels players have made, and building your own. Three Franks are free from the start, and any other Frank can be earned for 250 of the tokens you pick up as you fall. There is nothing to install and no sign-up.</p>
+          <p>The second level, ROCK BOTTOM, costs $0.99. Its first stretches are free to try.</p></div>
+        </details>
+        <details>
+          <summary>What does paying get me?</summary>
+          <div><p>There are two things to buy, each once. One payment of $0.99 unlocks every Frank at once, for good: the 21 that are not free. A Frank is who you play as; the levels, the scores and the leaderboards are the same whichever Frank you are.</p>
+          <p>And $0.99 unlocks ROCK BOTTOM, the second level, for good: all of it, with its own leaderboard. Neither is a subscription.</p></div>
+        </details>
+        <details>
+          <summary>Can I get a refund?</summary>
+          <div><p>No. Both are one-time purchases and neither is refundable; the game says so before you pay. ROCK BOTTOM has a free taste, and any Frank can be earned with tokens, so you can see what you are buying first.</p></div>
+        </details>
+        <details>
+          <summary>Phone or computer?</summary>
+          <div><p>Both. It is made for a phone held upright: tap the left or the right half of the screen. On a computer use the left and right arrow keys, or A and D; Esc or P pauses. It runs in the browser, and you can add it to your phone's home screen.</p></div>
+        </details>
+        <details>
+          <summary>How does the leaderboard work?</summary>
+          <div><p>Every level has its own board, the levels players made included. Each attempt scores 100 points for every percent of the level you got through and 10 for every token, plus 5,000 for reaching the bottom; hard counts one and a half times and insane double. The board keeps each player's best. Press TOP on a level to see it.</p>
+          <p>You need no account to be on it. You go up as PLAYER and a number until you pick a name of 2 to 16 characters.</p></div>
+        </details>
+        <details>
+          <summary>What are the difficulties?</summary>
+          <div><p><b>Easy</b>: a fall sends you back only to the start of the stretch, and tokens count half. <b>Normal</b>: a fall sends you back to the top. <b>Hard</b>: everything is a fifth faster, and scores count one and a half times. <b>Insane</b>: everything is 40% faster, and scores count double. You change it in the settings (the sliders, top left).</p></div>
+        </details>
+        <details>
+          <summary>How do I make my own level with Claude, and share it?</summary>
+          <div><p>In claude.ai open Settings, then Connectors, add a custom connector with the address <span class="url">https://freefallfrank.com/mcp</span>, and connect it: you sign in with Google, which is what makes the levels yours. Then describe the level you want in a chat. Claude previews it, changes it as you say and publishes it.</p>
+          <p>You get a link like <span class="url">freefallfrank.com/?level=abc1234</span>. Anyone who opens it plays your level, free, and their best score goes on its leaderboard. To put it on the public list in the game, press GO PUBLIC beside it on your profile or ask Claude to submit it; it is looked at before it is listed. All of this is free. <a href="/build">The steps, one by one.</a></p></div>
+        </details>
+        <details>
+          <summary>Do I need an account?</summary>
+          <div><p>Not to play. Your tokens, your Franks, your scores and your levels are kept for your device. You sign in, with Google, only to pay, or if you want all of it on every device: signing in moves what the device has onto the account. You can sign out or delete the account from your profile in the game.</p></div>
+        </details>
+        <details>
+          <summary>Who makes it?</summary>
+          <div><p>Glyphh: <a href="https://glyphh.ai" rel="noopener">glyphh.ai</a>.</p></div>
+        </details>
+        <details>
+          <summary>How do I get in touch?</summary>
+          <div><p>Write to <a href="mailto:support@glyphh.ai">support@glyphh.ai</a>.</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band end">
+    <div class="wrap">
+      <canvas id="endfrank" aria-hidden="true"></canvas>
+      <h2>FRANK IS ALREADY FALLING.</h2>
+      <p class="story" style="margin:0 0 24px">Go and catch him.</p>
+      <a class="btn big" href="/play">PLAY FREE</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="made" href="https://glyphh.ai" rel="noopener"><span>Made by</span><img src="/glyphh-logo.png" width="417" height="130" alt="Glyphh"></a>
+    <span>Contact: <a href="mailto:support@glyphh.ai">support@glyphh.ai</a></span>
+    <span class="links"><a href="/play">Play</a><a href="/build">Build a level</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></span>
+  </div>
+</footer>
+
+<script src="/franks.js"></script>
+<script>
+(function () {
+  'use strict';
+  var FRANKS = window.FFFFranks || [], FREE = [0, 1, 2];            // server.js FREE: the Franks anyone can play
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function (id) { return document.getElementById(id); };
+
+  // someone who came by an ad link (/about?src=...) keeps it when they go on to the game, so the ad gets the credit
+  if (location.search.length > 1) document.querySelectorAll('a[href="/play"]').forEach(function (a) { a.href = '/play' + location.search; });
+
+  // ---------- the video: it plays without sound until asked; nothing sits on top of it ----------
+  var reel = $('reel'), snd = $('snd');
+  if (calm) { reel.removeAttribute('autoplay'); reel.pause(); reel.controls = true; }
+  snd.onclick = function () {
+    reel.muted = !reel.muted;
+    if (!reel.muted) reel.play().catch(function () {});
+    snd.textContent = 'SOUND: ' + (reel.muted ? 'OFF' : 'ON'); snd.setAttribute('aria-pressed', String(!reel.muted));
+  };
+
+  // ---------- rise into place on the way down the page ----------
+  var rv = document.querySelectorAll('.rv');
+  if (calm || !('IntersectionObserver' in window)) rv.forEach(function (n) { n.classList.add('in'); });
+  else {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' });
+    rv.forEach(function (n) { io.observe(n); });
+  }
+
+  // ---------- Frank, drawn as the game draws him (game.js drawBody): around his centre, head up; u = one cube ----------
+  function rgb(hex) { var n = parseInt(hex.slice(1), 16); return [n >> 16, n >> 8 & 255, n & 255]; }
+  function shade(hex, f) { return '#' + rgb(hex).map(function (v) { return ('0' + Math.max(0, Math.min(255, Math.round(f > 1 ? v + (255 - v) * (f - 1) : v * f))).toString(16)).slice(-2); }).join(''); }
+  function drawBody(ctx, u, f, t, floatie) {
+    var R = function (c, x, y, w, h) { ctx.fillStyle = c; ctx.fillRect(x * u, y * u, w * u, h * u); };
+    var ex = f.extra, o = Math.max(2, Math.round(u * 0.07)) / u, i;
+    if (ex.indexOf('ghost') >= 0) ctx.globalAlpha *= 0.72;
+    if (ex.indexOf('bun') >= 0) { R('#0a0812', -0.8, -1.42, 1.6, 2.84); R('#e0a85a', -0.74, -1.36, 0.3, 2.72); R('#e0a85a', 0.44, -1.36, 0.3, 2.72); }
+    R(f.head, -0.74, -0.42 + Math.sin(t * 19) * 0.12, 0.26, 0.17);
+    R(f.head, 0.48, -0.42 + Math.cos(t * 17) * 0.12, 0.26, 0.17);
+    var flap = function (k) { return Math.abs(Math.sin(t * 15 + k * 2)) * 0.12; };
+    if (f.hat === 'tuft') for (i = 0; i < 3; i++) R(f.hair, -0.4 + i * 0.3, -1.72 - flap(i), 0.18, 0.3);
+    else if (f.hat === 'mohawk') for (i = 0; i < 3; i++) R(f.hair, -0.3 + i * 0.2, -1.95 - flap(i) - (i === 1 ? 0.12 : 0), 0.2, 0.5);
+    else if (f.hat === 'afro') { R('#0a0812', -0.82, -2.1, 1.64, 1.05); R(f.hair, -0.76, -2.04, 1.52, 0.6); R(f.hair, -0.76, -1.5, 0.24, 0.42); R(f.hair, 0.52, -1.5, 0.24, 0.42); }
+    else if (f.hat === 'tophat') { R(f.hair, -0.4, -2.2, 0.8, 0.7); R('#c0392b', -0.4, -1.72, 0.8, 0.12); R(f.hair, -0.68, -1.6, 1.36, 0.13); }
+    else if (f.hat === 'chef') { R('#0a0812', -0.6, -2.36, 1.2, 0.9); R(f.hair, -0.38, -2.1, 0.76, 0.62); R(f.hair, -0.54, -2.3, 1.08, 0.34); }
+    else if (f.hat === 'cowboy') { R(f.hair, -0.42, -2.02, 0.84, 0.46); R(shade(f.hair, 0.7), -0.42, -1.72, 0.84, 0.1); R(f.hair, -0.88, -1.62, 1.76, 0.14); }
+    else if (f.hat === 'wizard') { R(f.hair, -0.1, -2.56, 0.2, 0.3); R(f.hair, -0.25, -2.28, 0.5, 0.32); R(f.hair, -0.4, -1.98, 0.8, 0.38); R(f.hair, -0.64, -1.64, 1.28, 0.15); R('#ffd23f', -0.08, -2.0, 0.16, 0.16); }
+    else if (f.hat === 'crown') { for (i = 0; i < 3; i++) R(f.hair, -0.5 + i * 0.4, -1.96, 0.2, 0.26); R(f.hair, -0.5, -1.74, 1, 0.26); R('#ff4f6d', -0.08, -1.7, 0.16, 0.14); }
+    else if (f.hat === 'antenna') { R('#5d6675', -0.04, -1.98, 0.08, 0.5); R(f.hair, -0.12, -2.12, 0.24, 0.2); }
+    else if (f.hat === 'band') { R(f.hair, 0.5, -1.4 - flap(0), 0.34, 0.1); R(f.hair, 0.5, -1.26 - flap(1), 0.26, 0.1); }
+    ctx.fillStyle = '#0a0812'; ctx.fillRect((-0.5 - o) * u, (-1.5 - o) * u, (1 + 2 * o) * u, (3 + 2 * o) * u);
+    var cubes = [f.head, f.torso, f.legs];
+    for (i = 0; i < 3; i++) {
+      var y = -1.5 + i;
+      R(cubes[i], -0.5, y, 1, 1);
+      R(shade(cubes[i], 1.4), -0.5, y, 1, 0.14);
+      R(shade(cubes[i], 0.7), 0.36, y, 0.14, 1); R(shade(cubes[i], 0.7), -0.5, y + 0.9, 1, 0.1);
+    }
+    if (ex.indexOf('grain') >= 0) for (i = 0; i < 5; i++) R('rgba(60,30,10,0.35)', -0.4 + (i % 2) * 0.2, -1.2 + i * 0.55, 0.6, 0.05);
+    if (ex.indexOf('mustard') >= 0) for (i = 0; i < 6; i++) R('#ffd23f', i % 2 ? -0.02 : -0.16, -0.5 + i * 0.3, 0.18, 0.3);
+    if (f.hat === 'tuft' || f.hat === 'flat') R(f.hair, -0.5, -1.5, 1, f.hat === 'flat' ? 0.24 : 0.14);
+    else if (f.hat === 'helmet') { R('#0a0812', -0.62, -1.68, 1.24, 0.5); R(f.hair, -0.58, -1.64, 1.16, 0.42); }
+    else if (f.hat === 'beanie') { R(f.hair, -0.54, -1.66, 1.08, 0.36); R(f.torso, -0.14, -1.9, 0.28, 0.24); }
+    else if (f.hat === 'band') R(f.hair, -0.52, -1.42, 1.04, 0.14);
+    if (ex.indexOf('visor') >= 0) { R('#12233f', -0.4, -1.3, 0.8, 0.4); R('#7fe9ff', -0.3, -1.24, 0.22, 0.08); }
+    else {
+      if (ex.indexOf('blank') < 0) { R('#fff', -0.34, -1.24, 0.26, 0.28); R('#fff', 0.04, -1.24, 0.26, 0.28); }
+      R('#0a0812', -0.26, -1.1, 0.12, 0.14); R('#0a0812', 0.12, -1.1, 0.12, 0.14);
+      if (ex.indexOf('patch') >= 0) { R('#0a0812', -0.38, -1.28, 0.34, 0.34); R('#0a0812', -0.5, -1.3, 1, 0.06); }
+    }
+    if (ex.indexOf('blank') < 0) R('#0a0812', -0.17, -0.84, 0.34, 0.16 + Math.abs(Math.sin(t * 9)) * 0.08);
+    if (ex.indexOf('nose') >= 0) R('#ff3d3d', -0.12, -1.02, 0.24, 0.2);
+    if (ex.indexOf('bolts') >= 0) { R('#9aa3ad', -0.68, -1.05, 0.18, 0.2); R('#9aa3ad', 0.5, -1.05, 0.18, 0.2); }
+    if (ex.indexOf('tie') === 0) { R('#f4f4f4', -0.2, -0.5, 0.4, 0.3); R('#c0392b', -0.08, -0.46, 0.16, 0.7); }
+    if (ex.indexOf('bowtie') >= 0) { R('#c0392b', -0.24, -0.46, 0.48, 0.18); R('#15151f', -0.06, -0.2, 0.12, 0.5); }
+    if (ex.indexOf('flies') >= 0) for (i = 0; i < 3; i++) R('#1b1b1b', Math.cos(t * 5 + i * 2.1) * 0.9 - 0.05, -1.3 + Math.sin(t * 7 + i * 2.1) * 0.6 + i * 0.4, 0.1, 0.1);
+    if (floatie) {                                                  // the duck ring he rides through the slime
+      R('#0a0812', -0.86, -0.16, 1.72, 0.5); R('#ff7ac8', -0.8, -0.1, 1.6, 0.38);
+      R('#fff', -0.5, -0.1, 0.16, 0.38); R('#fff', 0.3, -0.1, 0.16, 0.38);
+      R('#ffd23f', 0.72, -0.46, 0.34, 0.4); R('#ff7b00', 1.06, -0.3, 0.16, 0.12); R('#0a0812', 0.9, -0.38, 0.08, 0.08);
+    }
+  }
+  function frankAt(ctx, x, y, u, rot, f, t, floatie) { ctx.save(); ctx.translate(x, y); ctx.rotate(rot); drawBody(ctx, u, f, t, floatie); ctx.restore(); }
+  function coin(ctx, x, y, s, t) {                                  // Frank's own token (game.js drawToken, the coin)
+    var spin = Math.max(0.25, Math.abs(Math.cos(t * 4)));
+    ctx.fillStyle = '#0a0812'; ctx.beginPath(); ctx.ellipse(x, y, s * 1.28 * spin, s * 1.28, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.ellipse(x, y, s * spin, s, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fillRect(x - s * 0.3 * spin, y - s * 0.5, s * 0.25 * spin, s * 0.5);
+  }
+  function hash(a, b) {
+    var h = Math.imul(a | 0, 374761393) + Math.imul(b | 0, 668265263);
+    h = Math.imul(h ^ h >>> 13, 1274126177);
+    return ((h ^ h >>> 16) >>> 0) / 4294967296;
+  }
+  // a canvas sized to its box, sharp on a phone's screen; returns its drawing context with w and h in CSS pixels
+  function fitCanvas(cv) {
+    var d = Math.min(window.devicePixelRatio || 1, 2), w = cv.clientWidth, h = cv.clientHeight;
+    if (cv.width !== Math.round(w * d) || cv.height !== Math.round(h * d)) { cv.width = Math.round(w * d); cv.height = Math.round(h * d); }
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(d, 0, 0, d, 0, 0); ctx.imageSmoothingEnabled = false;
+    return { ctx: ctx, w: w, h: h };
+  }
+  if (!FRANKS.length) return;                                       // no Franks to draw: the page reads without them
+
+  // ---------- behind the page: the game's drifting squares, and (where there is room beside the words) Franks falling past ----------
+  var sky = $('sky'), fallers = [];
+  for (var k = 0; k < 7; k++) fallers.push({ who: Math.floor(hash(k, 11) * FRANKS.length), side: k % 2, x: hash(k, 12), y: hash(k, 13), v: 0.1 + hash(k, 14) * 0.12, spin: hash(k, 15) * 4, u: 15 + hash(k, 16) * 12 });
+  function drawSky(t) {
+    var c = fitCanvas(sky), ctx = c.ctx, W = c.w, H = c.h, s = Math.max(W, H) / 6, i;
+    ctx.clearRect(0, 0, W, H);
+    for (i = 0; i < 14; i++) {
+      var q = s * (0.5 + hash(i, 64)), x = (hash(i, 61) * (W + s * 3) + t * (5 + hash(i, 63) * 9)) % (W + s * 3) - s * 1.5;
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.02 + hash(i, 65) * 0.035) + ')'; ctx.fillRect(x, hash(i, 62) * H - q / 2, q, q);
+    }
+    var gut = (W - 1120) / 2;                                       // the empty strip each side of the page
+    if (gut < 70) return;
+    fallers.forEach(function (f, n) {
+      var y = ((f.y + t * f.v) % 1.3 - 0.15) * H, lap = Math.floor(f.y + t * f.v / 1.3), who = (f.who + lap * 5) % FRANKS.length;
+      var fx = (f.side ? W - gut : 0) + 30 + f.x * (gut - 60);
+      frankAt(ctx, fx, y, f.u, Math.floor(t * 1.6 + f.spin) * Math.PI / 2 * (n % 2 ? 1 : -1), FRANKS[who], t + n);
+    });
+  }
+
+  // ---------- how it plays: the four panels of the game's own HOW TO PLAY (game.js drawHowto) ----------
+  var hows = [].slice.call(document.querySelectorAll('canvas[data-how]'));
+  function drawHow(cv, t) {
+    var c = fitCanvas(cv), ctx = c.ctx, W = c.w, H = c.h, cx = W / 2, cy = H / 2, u = Math.min(H * 0.17, 22), k = +cv.getAttribute('data-how');
+    var R = function (col, x, y, w, h) { ctx.fillStyle = col; ctx.fillRect(Math.round(x), Math.round(y), Math.ceil(w), Math.ceil(h)); };
+    ctx.clearRect(0, 0, W, H);
+    if (k === 0) {
+      var side = Math.floor(t * 1.2) % 2;                           // the two halves of the screen take turns lighting up
+      R(side ? '#1f1a33' : '#3b3f8f', 0, 0, W / 2, H); R(side ? '#3b3f8f' : '#1f1a33', cx, 0, W / 2, H);
+      ctx.font = 'bold ' + Math.round(u * 1.6) + 'px "Courier New", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff';
+      ctx.fillText('<', W * 0.14, cy); ctx.fillText('>', W * 0.86, cy);
+      frankAt(ctx, cx, cy, u * 0.8, (side ? 1 : -1) * Math.min(1, (t * 1.2 % 1) * 3) * Math.PI / 2, FRANKS[0], t);
+    } else if (k === 1) {
+      var gy = cy + u * 1.3, drop = (t * 0.7 % 1) * u * 2.4;
+      R('#454066', 0, gy, cx - u * 0.8, u); R('#454066', cx + u * 0.8, gy, W, u);
+      R('#35e8ff', 0, gy, cx - u * 0.8, u * 0.18); R('#35e8ff', cx + u * 0.8, gy, W, u * 0.18);
+      frankAt(ctx, cx, cy - u * 1.6 + drop, u * 0.75, 0, FRANKS[0], t);
+    } else if (k === 2) {
+      R('rgba(88,185,138,0.25)', 0, cy + u * 0.4, W, H);
+      frankAt(ctx, cx + Math.round(Math.sin(t * 1.6) * 2.4) * u * 0.7, cy, u * 0.8, 0, FRANKS[1], t, true);
+    } else {
+      for (var i = 0; i < 3; i++) coin(ctx, cx - W * 0.3 + i * u * 1.3, cy + Math.sin(t * 4 + i) * u * 0.2, u * 0.42, t + i);
+      frankAt(ctx, cx + W * 0.26, cy + u * 0.3, u * 0.7, Math.sin(t * 4) * 0.1, FRANKS[1 + Math.floor(t / 1.5) % (FRANKS.length - 1)], t);
+    }
+  }
+
+  // ---------- all 24, each in his own box ----------
+  var row = $('row24'), boxes = [];
+  FRANKS.forEach(function (f, i) {
+    var fig = document.createElement('figure'), cv = document.createElement('canvas'), cap = document.createElement('figcaption');
+    cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', f.name);
+    cap.textContent = f.name;
+    fig.appendChild(cv); fig.appendChild(cap);
+    if (FREE.indexOf(i) >= 0) { var tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = 'FREE'; fig.appendChild(tag); }
+    row.appendChild(fig); boxes.push(cv);
+  });
+  function drawBox(cv, i, t) {
+    var c = fitCanvas(cv), hop = calm ? 0 : Math.abs(Math.sin(t * 3 + i * 0.7)) * 5;
+    c.ctx.clearRect(0, 0, c.w, c.h);
+    frankAt(c.ctx, c.w / 2, 60 - hop, 19, calm ? 0 : Math.sin(t * 3 + i * 0.7) * 0.06, FRANKS[i], calm ? i : t + i);
+  }
+
+  // ---------- the last word: a Frank tumbling, a new one every turn ----------
+  var endCv = $('endfrank');
+  function drawEnd(t) {
+    var c = fitCanvas(endCv), turn = t * 1.5, q = Math.floor(turn), p = Math.min(1, (turn - q) * 3);
+    c.ctx.clearRect(0, 0, c.w, c.h);
+    frankAt(c.ctx, c.w / 2, c.h / 2 + 14, 44, (q + p) * Math.PI / 2, FRANKS[Math.floor(turn / 4) % FRANKS.length], t);
+  }
+
+  // one loop for all of it, and only what is on the screen is drawn; with less motion asked for, each is drawn once and left
+  var seen = new Set();
+  function all(t) {
+    drawSky(t);
+    hows.forEach(function (cv) { if (calm || seen.has(cv)) drawHow(cv, t); });
+    boxes.forEach(function (cv, i) { if (calm || seen.has(cv)) drawBox(cv, i, t); });
+    if (calm || seen.has(endCv)) drawEnd(t);
+  }
+  if (calm || !('IntersectionObserver' in window)) { all(0.4); window.addEventListener('resize', function () { all(0.4); }); return; }
+  var watch = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) seen.add(e.target); else seen.delete(e.target); }); }, { rootMargin: '80px' });
+  hows.concat(boxes, [endCv]).forEach(function (cv) { watch.observe(cv); });
+  (function frame() { requestAnimationFrame(frame); if (!document.hidden) all(performance.now() / 1000); })();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "free-fall-frank",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/sim.cjs && node test/forks.cjs && node test/fair.cjs && node test/audio.cjs && node test/fixtures.cjs && node test/rating.cjs && node test/server.cjs && node test/safe.cjs && node test/contract.cjs && node test/browser.cjs && node test/ui.cjs"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}

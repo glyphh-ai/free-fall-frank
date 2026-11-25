@@ -1,0 +1,13 @@
+{
+  "what": "What can be read and makes no sense: settings of the wrong kind, a list of made levels with things in it that are not levels, bests that are not numbers. Each field gets its usual value; a level that is one is still there.",
+  "store": {
+    "fff.did": "0d9b7a52-64f0-4f0e-b8f1-3f6f0a4f7c20",
+    "fff.splash": "1", "fff.intro": "1", "fff.howto": "1",
+    "fff.frank": "ninety", "fff.lv": "nowhere",
+    "fff.set": "{\"music\":\"yes\",\"sfx\":0,\"buzz\":null,\"easy\":\"no\",\"diff\":\"hard\"}",
+    "fff.levels": "[null,5,\"x\",{\"noid\":1},{\"id\":\"k3m9x2a\",\"name\":\"Tiny\",\"author\":\"anonymous\",\"world\":0,\"seed\":606874,\"sections\":[{\"kind\":\"gates\",\"beats\":16,\"speed\":10,\"wide\":true,\"taps\":[1,3],\"posts\":0.3,\"springs\":0.15,\"blowers\":0.15,\"thick\":0.2,\"saws\":1,\"bonus\":false}]},{\"id\":\"brokn01\",\"name\":\"Broken\",\"sections\":\"none\"}]",
+    "fff.franks": "[[],{\"id\":7}]",
+    "fff.far.0": "lots", "fff.top.0": "NaN", "fff.tokens": "many"
+  },
+  "want": { "settings": { "music": true, "sfx": true, "buzz": true, "easy": false, "diff": -1 }, "levels": ["k3m9x2a", "brokn01"], "franks": [], "bad": [], "v": 2 }
+}

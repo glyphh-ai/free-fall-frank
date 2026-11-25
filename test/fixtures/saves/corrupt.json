@@ -1,0 +1,13 @@
+{
+  "what": "What cannot be read: settings cut off in the middle, made levels that are not JSON, made Franks that are not a list. Each is set aside whole (fff.bad.<name>) and he carries on with the usual values; his bests, which are read by themselves, are untouched.",
+  "store": {
+    "fff.did": "0d9b7a52-64f0-4f0e-b8f1-3f6f0a4f7c20",
+    "fff.splash": "1", "fff.intro": "1", "fff.howto": "1",
+    "fff.frank": "4",
+    "fff.set": "{\"music\":false,\"sfx\":tr",
+    "fff.levels": "not json at all",
+    "fff.franks": "{\"id\":\"f81c2d0\",\"name\":\"BOLT\"}",
+    "fff.far.0": "77", "fff.top.0": "8800"
+  },
+  "want": { "settings": { "music": true, "sfx": true, "buzz": true, "easy": false, "diff": -1 }, "levels": [], "franks": [], "bad": ["fff.set", "fff.levels", "fff.franks"], "v": 2 }
+}

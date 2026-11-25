@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Free Fall Frank: admin</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#15131f">
+<style>
+  :root { --bg: #12101c; --card: #1c1830; --line: #2e2a47; --ink: #f1eefc; --dim: #a39fbe; --hot: #ff4fd8; --cool: #35e8ff; --gold: #ffd23f; --good: #7be37b; --bad: #ff6b81; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  header h1 { font-size: 18px; margin: 0; color: var(--gold); }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav button, .btn { background: none; border: 1px solid var(--line); color: var(--ink); padding: 7px 14px; border-radius: 6px; cursor: pointer; font: inherit; }
+  nav button.on { background: var(--hot); border-color: var(--hot); color: #fff; }
+  .btn.go { background: var(--hot); border-color: var(--hot); }
+  main { padding: 20px; max-width: 1280px; margin: 0 auto; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .tile b { display: block; font-size: 26px; }
+  .tile span { color: var(--dim); font-size: 12px; }
+  h2 { font-size: 15px; margin: 26px 0 10px; color: var(--cool); }
+  .note { color: var(--dim); font-size: 12.5px; margin: -4px 0 10px; max-width: 760px; }
+  main a { color: var(--cyan, #35e8ff); }
+  .chart { height: 320px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin-bottom: 14px; }
+  .wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; white-space: nowrap; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { color: var(--dim); font-weight: 600; font-size: 12px; position: sticky; top: 0; background: var(--card); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: 0; }
+  tr.pick { cursor: pointer; }
+  tr.pick:hover td { background: #262040; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11.5px; background: #2e2a47; }
+  .tag.good { background: #1f4a2a; color: var(--good); } .tag.bad { background: #4a1f2a; color: var(--bad); } .tag.gold { background: #4a3d12; color: var(--gold); }
+  input { background: #0e0c17; border: 1px solid var(--line); color: var(--ink); padding: 8px 10px; border-radius: 6px; font: inherit; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .login { max-width: 320px; margin: 16vh auto; text-align: center; }
+  .login input { width: 100%; margin: 10px 0; }
+  .err { color: var(--bad); min-height: 1.2em; }
+  .back { margin-bottom: 14px; }
+  code { background: #0e0c17; padding: 2px 6px; border-radius: 4px; user-select: all; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="login" id="login" hidden>
+  <h1 style="color:var(--gold)">Free Fall Frank</h1>
+  <p class="note" style="margin:0 auto">Admin. Sign in with the admin's Google account.</p>
+  <div id="gbtn" style="display:flex;justify-content:center;min-height:44px;margin:14px 0"></div>
+  <p class="note" style="margin:18px auto 6px">or the password</p>
+  <input type="password" id="pw" placeholder="Password" autocomplete="current-password">
+  <button class="btn go" id="go" style="width:100%">Sign in</button>
+  <p class="err" id="lerr"></p>
+</div>
+<div id="app" hidden>
+  <header>
+    <h1>Free Fall Frank: admin</h1>
+    <nav id="nav"></nav>
+    <span style="flex:1"></span>
+    <button class="btn" id="reload">Refresh</button>
+    <button class="btn" id="out">Sign out</button>
+  </header>
+  <main id="main"></main>
+</div>
+<script src="/chart.min.js"></script>
+<script>
+'use strict';
+// Everything shown comes from the server as data and is written with esc(): names, emails and ad-link codes are other people's text.
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = n => (n || 0).toLocaleString('en-US');
+const money = c => '$' + ((c || 0) / 100).toFixed(2);
+const dur = s => { s = Math.round(s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return h ? h + 'h ' + m + 'm' : m ? m + 'm ' + (s % 60) + 's' : s + 's'; };
+const when = t => { if (!t) return ''; const d = (Date.now() - t) / 1000; return d < 90 ? 'just now' : d < 3600 ? Math.round(d / 60) + ' min ago' : d < 86400 ? Math.round(d / 3600) + ' h ago' : d < 86400 * 14 ? Math.round(d / 86400) + ' d ago' : new Date(t).toISOString().slice(0, 10); };
+const pc = (a, b) => b ? Math.round(a / b * 100) + '%' : '-';
+const api = (path, body) => fetch('/api/admin/' + path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}).then(r => r.status === 401 ? Promise.reject('signin') : r.json());
+// a table from rows: cols = [heading, cell(row) -> safe html, numeric?]
+const table = (cols, rows, pick) => '<div class="wrap"><table><thead><tr>' + cols.map(c => '<th' + (c[2] ? ' class="n"' : '') + '>' + esc(c[0]) + '</th>').join('') + '</tr></thead><tbody>' +
+  (rows.length ? rows.map(r => '<tr' + (pick ? ' class="pick" data-id="' + esc(pick(r)) + '"' : '') + '>' + cols.map(c => '<td' + (c[2] ? ' class="n"' : '') + '>' + c[1](r) + '</td>').join('') + '</tr>').join('') : '<tr><td colspan="' + cols.length + '" style="color:var(--dim)">Nothing yet.</td></tr>') + '</tbody></table></div>';
+const tile = (v, label) => '<div class="tile"><b>' + esc(v) + '</b><span>' + esc(label) + '</span></div>';
+const who = p => p.name || p.email ? esc(p.name || p.email) + (p.name && p.email ? ' <span style="color:var(--dim)">' + esc(p.email) + '</span>' : '') : '<span style="color:var(--dim)">no account · ' + esc(p.did.slice(0, 8)) + '</span>';
+
+let D = null, tab = 'Overview', payments = null;
+const TABS = ['Overview', 'Levels', 'Players', 'Marketing', 'Payments', 'Review', 'Sponsors'];
+// the reviewer's tools, the same ones the connector has: levels players made, and the sponsors
+const tool = (name, args) => api('tool', { name: name, args: args || {} });
+let made = null, ads = null;
+const STATUS = { link: ['by link only', ''], pending: ['waiting for review', 'gold'], public: ['on the public list', 'good'], declined: ['declined', 'bad'] };
+
+const views = {
+  Overview() {
+    const o = D.overview;
+    return '<div class="tiles">' + [
+      tile(num(o.players), 'players (devices), all time'), tile(num(o.players24), 'new players, last 24 h'), tile(num(o.players7), 'new players, last 7 days'), tile(num(o.active24), 'played or visited, last 24 h'),
+      tile(num(o.runs), 'attempts at a level, all time'), tile(num(o.runs24), 'attempts, last 24 h'), tile(dur(o.secs), 'total time played'), tile(o.runs ? dur(o.secs / o.runs) : '-', 'average attempt'),
+      tile(num(o.accounts), 'accounts (signed in to pay)'), tile(num(o.buyers), 'paying players'), tile(money(o.revenue), 'paid, before Stripe fees'), tile(num(o.earned), 'Franks earned with tokens'),
+    ].join('') + '</div>' +
+    '<h2>Last 14 days</h2><div class="chart"><canvas id="daily"></canvas></div>' + table([['Day', r => esc(r.d)], ['New players', r => num(r.players), 1], ['Players who played', r => num(r.active), 1], ['Attempts', r => num(r.runs), 1], ['Time played', r => dur(r.secs), 1], ['Accounts made', r => num(r.signups), 1], ['Paid', r => money(r.revenue), 1]], D.days) +
+    '<h2>How far players get on the first level</h2><p class="note">Each row is a stretch of Frank\'s own level and how many players have ever reached it. The drop from one row to the next is where they give up.</p>' +
+    table([['Stretch', r => esc(r.n + '. ' + r.key)], ['Starts at', r => r.at + '%', 1], ['Players who got there', r => num(r.players), 1], ['Of those who started', r => pc(r.players, D.funnel[0].players), 1]], D.funnel);
+  },
+  Levels() {
+    // a paid level (100 and up) also shows how many of its attempts were tastes that reached the wall, and what it has sold
+    return '<p class="note">One row per Frank\'s level, then the paid levels. "Usually ends in" is the stretch where most attempts end. A paid level\'s "Tastes" are the free plays that reached its wall.</p>' +
+      table([['Level', r => esc(r.frank + '. ' + r.name)], ['Attempts', r => num(r.plays), 1], ['Players', r => num(r.players), 1], ['Average reached', r => r.avg + '%', 1], ['Furthest', r => r.best + '%', 1],
+        ['Clears', r => num(r.clears), 1], ['Players who cleared it', r => num(r.cleared) + ' (' + pc(r.cleared, r.players) + ')', 1], ['Tastes', r => r.paid ? num(r.tastes) : '', 1], ['Purchases', r => r.paid ? num(r.purchases) : '', 1], ['Revenue', r => r.paid ? money(r.revenue) : '', 1],
+        ['Time played', r => dur(r.secs), 1], ['Per attempt', r => dur(r.secs / r.plays), 1], ['Usually ends in', r => esc(r.dies)]], D.levels) +
+      '<h2>Sold</h2><p class="note">Live payments, by what was bought.</p>' + table([['What', r => esc(r.name)], ['Purchases', r => num(r.n), 1], ['Buyers', r => num(r.buyers), 1], ['Revenue', r => money(r.revenue), 1]], D.sales || []);
+  },
+  Players() {
+    const f = (window._find || '').toLowerCase(), rows = D.players.filter(p => !f || [p.name, p.email, p.src, p.did].join(' ').toLowerCase().includes(f));
+    return '<div class="row"><input id="find" placeholder="Find by name, email, link or id" value="' + esc(window._find || '') + '" style="min-width:280px"><span class="note" style="margin:0">' + num(rows.length) + ' shown, most recent first. Click a row for that player\'s levels and attempts.</span></div>' +
+      table([['Player', who], ['Came from', r => r.src ? '<span class="tag gold">' + esc(r.src) + '</span>' : ''], ['First seen', r => esc(when(r.first))], ['Last seen', r => esc(when(r.last))], ['Visits', r => num(r.visits), 1],
+        ['Attempts', r => num(r.runs), 1], ['Time played', r => dur(r.secs), 1], ['Levels tried', r => num(r.levels), 1], ['Cleared', r => num(r.clears), 1], ['Furthest', r => r.best + '%', 1],
+        ['Tokens', r => num(r.coins), 1], ['Earned', r => num(r.franks), 1], ['Paid', r => r.paid ? '<span class="tag good">' + money(r.paid) + '</span>' : '', 1]], rows, r => r.did);
+  },
+  Marketing() {
+    return '<h2>Make a link for an ad</h2><p class="note">Give each ad its own short code. Anyone who first arrives by that link is counted under it for good, whatever they do later. The usual <code>utm_campaign</code> and <code>utm_source</code> tags are counted the same way.</p>' +
+      '<div class="row"><input id="ccode" placeholder="code, e.g. tiktok-nov" maxlength="40"><input id="cnote" placeholder="what it is (only you see this)" style="min-width:260px" maxlength="120"><button class="btn go" id="cadd">Make link</button><span class="err" id="cerr"></span></div>' +
+      '<h2>What each link brought</h2><p class="note">Clicks = times the link was opened. New players = devices that had never been here before. Stayed = played 5 or more attempts. A player with two devices counts twice.</p>' +
+      table([['Link', r => r.code ? '<code>' + esc(D.site + '/?src=' + r.code) + '</code>' : '<span style="color:var(--dim)">(no link)</span>'], ['Note', r => esc(r.note)], ['Clicks', r => r.landings == null ? '' : num(r.landings), 1], ['New players', r => num(r.players), 1],
+        ['Played', r => num(r.played) + ' (' + pc(r.played, r.players) + ')', 1], ['Stayed', r => num(r.stayed) + ' (' + pc(r.stayed, r.players) + ')', 1], ['Time played', r => dur(r.secs), 1],
+        ['Accounts', r => num(r.signed), 1], ['Paid', r => num(r.buyers) + ' (' + pc(r.buyers, r.players) + ')', 1], ['Revenue', r => money(r.revenue), 1], ['Per new player', r => r.players ? money(r.revenue / r.players) : '-', 1]],
+        D.campaigns.slice().sort((a, b) => b.players - a.players));
+  },
+  // Levels players made through the connector. One is on the public list in the game only once it is approved here.
+  Review() {
+    if (!made) { tool('admin_levels').then(r => { made = r.levels || []; draw(); }).catch(fail); return '<p class="note">Loading the levels…</p>'; }
+    const waiting = made.filter(l => l.status === 'pending');
+    const row = l => '<a href="' + esc(l.play_url) + '" target="_blank" rel="noopener">' + esc(l.name) + '</a>';
+    const acts = l => (l.status !== 'public' ? '<button class="btn go" data-rv="approve" data-id="' + esc(l.id) + '">Approve</button> ' : '') + (l.status !== 'declined' ? '<button class="btn" data-rv="decline" data-id="' + esc(l.id) + '">' + (l.status === 'public' ? 'Take off the list' : 'Decline') + '</button>' : '');
+    return '<div class="tiles">' + [tile(num(waiting.length), 'waiting for review'), tile(num(made.filter(l => l.status === 'public').length), 'on the public list'), tile(num(made.length), 'levels made'), tile(num(made.reduce((a, l) => a + (l.plays || 0), 0)), 'plays of made levels')].join('') + '</div>' +
+      '<p class="note">Open a level to play it before you decide. Declining asks for a short reason, which its maker sees on their profile.</p><p class="err" id="rverr"></p>' +
+      '<h2>Waiting for review</h2>' + table([['Level', row], ['By', l => esc(l.author)], ['Made', l => esc(l.made)], ['Plays', l => num(l.plays), 1], ['', acts]], waiting) +
+      '<h2>Every made level</h2>' + table([['Level', row], ['By', l => esc(l.author)], ['Status', l => '<span class="tag ' + (STATUS[l.status] || STATUS.link)[1] + '">' + esc((STATUS[l.status] || STATUS.link)[0]) + '</span>' + (l.note ? ' <span style="color:var(--dim)">' + esc(l.note) + '</span>' : '')],
+        ['Made', l => esc(l.made)], ['Plays', l => num(l.plays), 1], ['Maker', l => '<span style="color:var(--dim)">' + esc(String(l.maker).slice(0, 26)) + '</span>'], ['', acts]], made);
+  },
+  // Sponsors: an ad is scenery in the game (a billboard at the top of a run, the name on the shaft wall) and one line under LEVEL CLEAR.
+  Sponsors() {
+    if (!ads) { tool('admin_ads').then(r => { ads = r.ads || []; draw(); }).catch(fail); return '<p class="note">Loading the sponsors…</p>'; }
+    return '<p class="note">One sponsor a run, in turn: its sign on the skyline billboard and sprayed on the shaft wall, and a line under LEVEL CLEAR that opens its link. Runs = runs that showed it; taps = taps on that line.</p>' +
+      table([['Ad', a => esc(a.id)], ['Sign', a => '<b style="color:' + esc(a.color) + '">' + esc(a.text) + '</b>' + (a.sub ? ' <span style="color:var(--dim)">' + esc(a.sub) + '</span>' : '')], ['Link', a => esc(a.url)], ['Runs', a => num(a.views), 1], ['Taps', a => num(a.clicks), 1], ['Tap rate', a => pc(a.clicks, a.views), 1],
+        ['', a => '<span class="tag ' + (a.live ? 'good' : 'bad') + '">' + (a.live ? 'on' : 'off') + '</span> <button class="btn" data-ad="' + esc(a.id) + '" data-live="' + (a.live ? 0 : 1) + '">' + (a.live ? 'Switch off' : 'Switch on') + '</button>']], ads) +
+      '<h2>Add or change a sponsor</h2><div class="row"><input id="aid" placeholder="id, e.g. fizz" size="12"><input id="atext" placeholder="SIGN (2 to 12 letters)" size="18"><input id="asub" placeholder="second line (optional)" size="22"><input id="aurl" placeholder="https://…" size="26"><input id="acol" placeholder="#ff4fd8" size="8"><button class="btn go" id="aadd">Save</button></div><p class="err" id="aerr"></p>';
+  },
+  Payments() {
+    if (!payments) { api('payments').then(r => { payments = r; draw(); }).catch(fail); return '<p class="note">Asking Stripe…</p>'; }
+    const p = payments.payments, paid = p.filter(x => x.paid), live = paid.filter(x => x.live), gross = live.reduce((a, x) => a + x.amount - x.refunded, 0), fees = live.reduce((a, x) => a + (x.fee || 0), 0), know = live.every(x => x.fee != null);
+    return (payments.error ? '<p class="err">Stripe said: ' + esc(payments.error) + '</p>' : '') +
+      '<div class="tiles">' + [tile(num(live.length), 'paid checkouts (live)'), tile(money(gross), 'taken, after refunds'), tile(know ? money(fees) : 'n/a', 'Stripe fees'), tile(know ? money(gross - fees) : 'n/a', 'kept'),
+        tile(num(p.filter(x => !x.paid).length), 'checkouts started, not paid'), tile(pc(paid.length, p.length), 'of checkouts started were paid')].join('') + '</div>' +
+      '<p class="note">Straight from Stripe: every checkout this game started, newest first. Test-mode ones are marked and left out of the totals.</p>' +
+      table([['When', r => esc(when(r.at))], ['What', r => esc(r.what)], ['Status', r => '<span class="tag ' + (r.paid ? 'good' : r.state === 'abandoned' ? 'bad' : '') + '">' + esc(r.state) + '</span>' + (r.live ? '' : ' <span class="tag">test</span>') + (r.refunded ? ' <span class="tag bad">refunded</span>' : '')],
+        ['Amount', r => money(r.amount), 1], ['Stripe fee', r => r.fee == null ? '' : money(r.fee), 1], ['Kept', r => r.net == null ? '' : money(r.net), 1], ['Email', r => esc(r.email)], ['Checkout', r => '<span style="color:var(--dim)">' + esc(r.id.slice(0, 22)) + '…</span>']], p);
+  },
+};
+
+function player(did) {
+  api('player?did=' + encodeURIComponent(did)).then(p => {
+    const d = p.device, a = p.account;
+    $('main').innerHTML = '<button class="btn back" id="bk">← All players</button>' +
+      '<div class="tiles">' + [tile(a ? (a.name || a.email || 'account') : 'no account', a ? a.email || '' : 'device ' + d.did.slice(0, 8)), tile(d.src || '(none)', 'came from'), tile(when(d.first), 'first seen'), tile(when(d.last), 'last seen'),
+        tile(num(p.runs.length) + (p.runs.length === 100 ? '+' : ''), 'recent attempts shown'), tile(num(p.coins), 'tokens in the wallet'), tile(p.packs.length ? 'whole pack' : num(p.franks.length), 'Franks unlocked'), tile(money(p.purchases.filter(x => x.live).reduce((s, x) => s + x.amount, 0)), 'paid')].join('') + '</div>' +
+      '<p class="note">' + esc(d.ua || '') + (d.ref ? ' · referred by ' + esc(d.ref) : '') + '</p>' +
+      '<h2>By level</h2>' + table([['Level', r => esc(r.frank + '. ' + r.name)], ['Attempts', r => num(r.plays), 1], ['Furthest', r => r.best + '%', 1], ['Average', r => r.avg + '%', 1], ['Clears', r => num(r.clears), 1], ['Time played', r => dur(r.secs), 1], ['Last played', r => esc(when(r.last))]], p.levels) +
+      (p.franks.length ? '<h2>Franks unlocked</h2>' + table([['Frank', r => esc(r.frank + '. ' + r.name)], ['How', r => r.session === 'tokens' ? 'tokens' : 'bought'], ['When', r => esc(when(r.created))]], p.franks) : '') +
+      (p.purchases.length ? '<h2>Payments</h2>' + table([['When', r => esc(when(r.at))], ['What', r => esc(r.kind)], ['Amount', r => money(r.amount), 1], ['Mode', r => r.live ? 'live' : 'test'], ['Email', r => esc(r.email)]], p.purchases) : '') +
+      '<h2>Recent attempts</h2>' + table([['When', r => esc(when(r.at))], ['Level', r => num(r.frank), 1], ['Got to', r => r.pct + '%', 1], ['Stretch', r => esc(r.sec)], ['Ended', r => '<span class="tag ' + (r.res === 'win' ? 'good' : '') + '">' + esc(r.res) + '</span>' + (r.easy ? ' <span class="tag">easy</span>' : '')], ['Lasted', r => dur(r.secs), 1], ['Tokens', r => num(r.tokens), 1]], p.runs);
+    $('bk').onclick = draw;
+  }).catch(fail);
+}
+
+// The last 14 days in one picture: bars for new players and accounts made, lines over them for how much the game was played.
+let daily = null;
+function chartDays() {
+  if (!window.Chart || !$('daily')) return;
+  const by = {}, days = [];
+  D.days.forEach(r => { by[r.d] = r; });
+  for (let i = 13; i >= 0; i--) { const d = new Date(D.now - i * 864e5).toISOString().slice(0, 10); days.push(by[d] || { d: d, players: 0, active: 0, runs: 0, signups: 0 }); }
+  const grid = { color: 'rgba(255,255,255,0.08)' }, ticks = { color: '#b9b4d0', precision: 0 };
+  if (daily) daily.destroy();
+  daily = new Chart($('daily'), {
+    data: {
+      labels: days.map(r => r.d.slice(5)),
+      datasets: [
+        { type: 'line', label: 'Attempts (usage)', data: days.map(r => r.runs), yAxisID: 'use', borderColor: '#ff4fd8', backgroundColor: '#ff4fd8', borderWidth: 2.5, tension: 0.3, pointRadius: 3 },
+        { type: 'line', label: 'Players who played', data: days.map(r => r.active), yAxisID: 'y', borderColor: '#ffd23f', backgroundColor: '#ffd23f', borderWidth: 2, tension: 0.3, pointRadius: 3 },
+        { type: 'bar', label: 'New players', data: days.map(r => r.players), yAxisID: 'y', backgroundColor: '#35e8ff', borderRadius: 3 },
+        { type: 'bar', label: 'Accounts made', data: days.map(r => r.signups), yAxisID: 'y', backgroundColor: '#a6ff3d', borderRadius: 3 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: '#e9e6f5', boxWidth: 14 } } },
+      scales: {
+        x: { grid: grid, ticks: ticks },
+        y: { beginAtZero: true, grid: grid, ticks: ticks, title: { display: true, text: 'players', color: '#b9b4d0' } },
+        use: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, ticks: ticks, title: { display: true, text: 'attempts', color: '#ff4fd8' } },
+      },
+    },
+  });
+}
+function draw() {
+  $('nav').innerHTML = TABS.map(t => '<button class="' + (t === tab ? 'on' : '') + '" data-t="' + t + '">' + t + '</button>').join('');
+  $('main').innerHTML = views[tab]();
+  if (tab === 'Overview') chartDays();
+  const f = $('find');
+  if (f) f.oninput = () => { window._find = f.value; const at = f.selectionStart; draw(); const g = $('find'); g.focus(); g.setSelectionRange(at, at); };
+  const add = $('cadd');
+  if (add) add.onclick = () => api('campaign', { code: $('ccode').value.trim(), note: $('cnote').value.trim() }).then(r => { if (r.error) { $('cerr').textContent = r.error; return; } load(); }).catch(fail);
+}
+function fail(e) { if (e === 'signin') { $('app').hidden = true; $('login').hidden = false; } else $('main').innerHTML = '<p class="err">Could not load: ' + esc(e) + '</p>'; }
+function load() { return api('data').then(d => { D = d; $('login').hidden = true; $('app').hidden = false; draw(); }).catch(fail); }
+
+$('nav').onclick = e => { const t = e.target.getAttribute('data-t'); if (t) { tab = t; draw(); } };
+$('main').onclick = e => {
+  const b = e.target.closest('button'), tr = e.target.closest('tr.pick');
+  if (b && b.getAttribute('data-rv')) {                              // approve or decline a level
+    const decision = b.getAttribute('data-rv'), note = decision === 'decline' ? prompt('Why? Its maker will see this.') : '';
+    if (decision === 'decline' && !note) return;
+    tool('admin_review', { id: b.getAttribute('data-id'), decision: decision, note: note || undefined }).then(r => { if (r.error) { $('rverr').textContent = r.error; return; } made = null; draw(); }).catch(fail);
+  } else if (b && b.getAttribute('data-ad')) {                       // switch a sponsor on or off
+    tool('admin_ad_set', { id: b.getAttribute('data-ad'), live: b.getAttribute('data-live') === '1' }).then(() => { ads = null; draw(); }).catch(fail);
+  } else if (b && b.id === 'aadd') {                                 // add or change a sponsor: only what was filled in
+    const a = { id: $('aid').value.trim() };
+    [['text', 'atext'], ['sub', 'asub'], ['url', 'aurl'], ['color', 'acol']].forEach(k => { const v = $(k[1]).value.trim(); if (v) a[k[0]] = v; });
+    tool('admin_ad_set', a).then(r => { if (r.error) { $('aerr').textContent = r.error; return; } ads = null; draw(); }).catch(fail);
+  } else if (tr) player(tr.getAttribute('data-id'));
+};
+$('reload').onclick = () => { payments = null; made = null; ads = null; load(); };
+$('out').onclick = () => api('logout', {}).then(() => fetch('/api/logout', { method: 'POST' })).then(() => location.reload());   // the password's sign-in and the Google one
+const signIn = () => fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: $('pw').value }) }).then(r => r.json()).then(r => { if (r.ok) { $('pw').value = ''; $('lerr').textContent = ''; load(); } else $('lerr').textContent = r.error || 'No.'; });
+$('go').onclick = signIn;
+// Google's own button on the sign-in screen: the admin is whoever signs in as the admin's address (the server decides)
+fetch('/api/me').then(r => r.json()).then(me => {
+  if (!me.google) return;
+  const s = document.createElement('script');
+  s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
+  s.onload = () => {
+    google.accounts.id.initialize({ client_id: me.google, callback: g => fetch('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential: g.credential }) })
+      .then(r => r.json()).then(r => { if (!r.ok) { $('lerr').textContent = 'That sign-in did not work.'; return; } api('data').then(d => { D = d; $('lerr').textContent = ''; $('login').hidden = true; $('app').hidden = false; draw(); }).catch(() => { $('lerr').textContent = 'That account is not the admin.'; }); }) });
+    google.accounts.id.renderButton($('gbtn'), { theme: 'filled_black', size: 'large', shape: 'rectangular', text: 'signin_with', width: 260 });
+  };
+  document.head.appendChild(s);
+}).catch(() => {});
+$('pw').onkeydown = e => { if (e.key === 'Enter') signIn(); };
+load();
+</script>
+</body>
+</html>

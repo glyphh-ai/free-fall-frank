@@ -1,0 +1,6 @@
+{
+  "what": "A made level as the server keeps it (the design core.js customLevel() gave back), written by --capture.",
+  "captured": {"made_v":0,"core_js":"da04a31b47d522d8","on":"2026-11-18"},
+  "print": "a36b6f933ee376e4",
+  "spec": {"name":"Pattern Alley","author":"Fixture","world":3,"seed":873045,"sections":[{"kind":"patterns","beats":24,"speed":8,"wide":true,"look":"shaft","pattern":"LLRR-lr","saws":0},{"kind":"patterns","beats":32,"speed":11,"wide":false,"look":"shaft2","pattern":"lr-LR","saws":2}]}
+}

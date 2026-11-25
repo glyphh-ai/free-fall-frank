@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Frank">
+<meta name="theme-color" content="#15131f">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Free Fall Frank</title>
+<style>
+  :root { --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; overscroll-behavior: none; position: fixed; inset: 0; }
+  canvas { display: block; width: 100vw; height: 100vh; height: 100dvh; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
+  /* The account sheet, in the look of the game's own menus (game.js): a pane of dark glass with two corners cut and
+     an edge of pink neon, rising from the foot of a phone's screen (the middle of a wide one). */
+  #acct { position: fixed; inset: 0; z-index: 12; background: rgba(5, 3, 14, 0.8); display: flex; align-items: flex-end; justify-content: center; padding: calc(12px + var(--sat)) 12px calc(14px + var(--sab)); box-sizing: border-box; font: bold 15px "Courier New", monospace; color: #fff; }
+  #acct .glow { width: min(380px, 100%); max-height: 100%; display: flex; filter: drop-shadow(0 0 14px rgba(255, 79, 216, 0.5)); animation: rise 0.22s cubic-bezier(.2, 1.3, .4, 1) both; }
+  @keyframes rise { from { transform: translateY(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+  #acct .card { position: relative; flex: 1; min-width: 0; max-height: 100%; overflow: auto; box-sizing: border-box; padding: 22px 18px 12px; text-align: center; background: #ff4fd8; clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); }
+  #acct .card::before { content: ""; position: absolute; inset: 2px; z-index: -1; background: linear-gradient(#281b58, #0e0924); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
+  #acct .card { isolation: isolate; }
+  #acct h2 { margin: 0 0 10px; font-size: 26px; letter-spacing: 1px; color: #ffd23f; text-shadow: 0 0 14px rgba(255, 210, 63, 0.6), 2px 2px 0 #0a0812; }
+  #acct p { margin: 8px 0; line-height: 1.4; }
+  #acct .dim { color: #b9b3cf; font-size: 13px; }
+  /* every sign-in button is 260 wide, the size Google draws its own, and tall enough for a thumb */
+  #acct .row { display: flex; justify-content: center; align-items: center; margin: 10px 0; min-height: 44px; }
+  #acct .row:empty, #acct .row:has(> [hidden]:only-child) { display: none; }
+  #acct button { font: inherit; color: #fff; border: 3px solid #0a0812; padding: 0 14px; box-sizing: border-box; width: 260px; height: 44px; max-width: 100%; cursor: pointer; background: linear-gradient(#5258b8, #3b3f8f 55%, #2d3070); box-shadow: inset 0 2px 0 rgba(255,255,255,0.35), 0 4px 0 #0a0812; transition: transform 0.06s, box-shadow 0.06s; -webkit-tap-highlight-color: transparent; }
+  #acct button:active { transform: translateY(3px); box-shadow: inset 0 2px 0 rgba(255,255,255,0.2), 0 1px 0 #0a0812; filter: brightness(0.9); }
+  #acct button#acct-link-go { background: linear-gradient(#ff7ae3, #ff4fd8 55%, #c93aab); }
+  #acct button.apple { background: #000; }
+  #acct button:disabled { opacity: 0.6; }
+  #acct input { font: inherit; font-size: 16px; color: #fff; background: #0c0818; border: 2px solid #35e8ff; border-radius: 0; -webkit-appearance: none; padding: 0 10px; box-sizing: border-box; width: 260px; height: 44px; max-width: 100%; text-align: center; box-shadow: inset 0 4px 0 rgba(0,0,0,0.35); }
+  #acct input::placeholder { color: #999; }
+  #acct input:focus { outline: 2px solid #ffd23f; outline-offset: 0; box-shadow: 0 0 12px rgba(53, 232, 255, 0.5); }
+  #acct .or { margin: 2px 0; }
+  #acct-sent-to { display: block; color: #35e8ff; overflow-wrap: anywhere; }
+  #acct-name { font-size: 18px; }
+  #acct-count { color: #a6ff3d; }
+  #acct button.plain { background: none; border: 0; box-shadow: none; color: #b9b3cf; font-size: 13px; text-decoration: underline; width: auto; height: auto; min-height: 44px; padding: 6px 14px; }
+  #acct button.plain:active { transform: none; color: #fff; }
+  #acct-note { color: #ff7a90; min-height: 1em; }
+  @media (min-width: 700px) { #acct { align-items: center; } }
+  /* the search box of the players' levels: the game draws its frame on the canvas and lays this over it (game.js findBox) */
+  #find { position: fixed; z-index: 5; box-sizing: border-box; margin: 0; padding: 0 6px; border: 0; outline: 0; border-radius: 0; background: transparent; color: #fff; caret-color: #35e8ff; font: bold 16px "Courier New", monospace; -webkit-appearance: none; appearance: none; }
+  #find::placeholder { color: #999; }
+  #find::-webkit-search-cancel-button { -webkit-appearance: none; }
+  #splash { position: fixed; inset: 0; z-index: 10; background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; transition: opacity 0.5s; }
+  #splash.out { opacity: 0; pointer-events: none; }
+  #splash img.spike { width: min(46vw, 200px); margin-bottom: 18px; }
+  #splash img { width: min(56vw, 260px); height: auto; animation: spike 0.7s cubic-bezier(.2, 1.6, .4, 1) both; }
+  @keyframes spike { from { transform: translateY(-60vh) rotate(-25deg); } to { transform: none; } }
+  /* a new version is ready (net.js): one small line on the bottom edge, never shown during a fall */
+  #fresh { position: fixed; left: 50%; transform: translateX(-50%); bottom: var(--sab); z-index: 15; display: flex; white-space: nowrap; border: 2px solid #ffd23f; font: bold 10px "Courier New", monospace; }
+  #fresh button { font: inherit; border: 0; margin: 0; height: 16px; padding: 0 8px; cursor: pointer; background: #1a1226; color: #ffd23f; }
+  #fresh #fresh-no { color: #b9b3cf; border-left: 2px solid #ffd23f; }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<!-- the search box of the players' levels (shown only on that list) -->
+<input id="find" type="search" hidden placeholder="Search levels or makers" maxlength="32" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Search the levels players made">
+<!-- flipped by the game to make an iPhone give a haptic tick -->
+<label id="hap" style="position:fixed;left:-200px;top:0;opacity:0;pointer-events:none" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
+<!-- the Glyphh splash: Spike the mascot above the Glyphh logo (the same file glyphh.ai shows), nothing typed. Shown on the very first load only -->
+<div id="splash" hidden><img class="spike" src="glyphh-spike.png" alt="Spike, the Glyphh mascot"><img src="glyphh-logo.png" alt="Glyphh"></div>
+<script>
+  // a player from here on: the bare address is the game for them, not the landing page (the server sets this too)
+  document.cookie = 'played=1; Path=/; Max-Age=31536000; SameSite=Lax';
+  (function () {
+    var s = document.getElementById('splash'), test = /[?&](bot|mute)\b/.test(location.search);
+    if (test || localStorage.getItem('fff.splash')) return;
+    localStorage.setItem('fff.splash', '1');
+    s.hidden = false;
+    var done = function () { s.className = 'out'; setTimeout(function () { s.hidden = true; }, 600); };
+    setTimeout(done, 2600);
+  })();
+</script>
+<div id="acct" hidden>
+  <div class="glow"><div class="card">
+    <h2>ACCOUNT</h2>
+    <div id="acct-out">
+      <p id="acct-why"></p>
+      <div class="row" id="acct-google"></div>
+      <div class="row"><button class="apple" id="acct-apple" hidden> Continue with Apple</button></div>
+      <!-- a sign-in link by email: shown when the server can send one -->
+      <form id="acct-link" hidden>
+        <p class="dim or">or</p>
+        <div class="row"><input type="email" id="acct-email" placeholder="you@example.com" autocomplete="email" autocapitalize="off" spellcheck="false" required aria-label="Your email address"></div>
+        <div class="row"><button id="acct-link-go">Email me a sign-in link</button></div>
+      </form>
+    </div>
+    <div id="acct-sent" hidden>
+      <p><b>CHECK YOUR EMAIL</b></p>
+      <p>A sign-in link is on its way to <span id="acct-sent-to"></span></p>
+      <p class="dim">It works for 15 minutes, on any device. Open it here and this page carries on by itself.</p>
+      <button class="plain" id="acct-other">Use another address</button>
+    </div>
+    <div id="acct-in" hidden>
+      <p id="acct-name"></p>
+      <p class="dim" id="acct-mail"></p>
+      <p id="acct-count"></p>
+      <div class="row"><button id="acct-signout">SIGN OUT</button></div>
+      <button class="plain" id="acct-delete">Delete my account</button>
+    </div>
+    <p id="acct-note"></p>
+    <button class="plain" id="acct-close">Close</button>
+  </div></div>
+</div>
+<!-- a new version of the game is ready: the page takes it by itself between falls; this is for whoever would rather do it now -->
+<div id="fresh" hidden><button id="fresh-go">NEW VERSION · RELOAD</button><button id="fresh-no" aria-label="Not now">✕</button></div>
+<script src="core.js"></script>
+<script src="franks.js"></script>
+<script src="music/tracks.js"></script>
+<script src="audio.js"></script>
+<script src="save.js"></script>
+<script src="net.js"></script>
+<script src="account.js"></script>
+<script src="game.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js').then(function (reg) { window.FFFNet.worker(reg); });
+</script>
+</body>
+</html>

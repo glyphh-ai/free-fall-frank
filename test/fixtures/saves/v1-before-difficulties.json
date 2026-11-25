@@ -1,0 +1,11 @@
+{
+  "what": "As an early build kept it: the settings from before there were four difficulties (easy only), no levels or Franks of players yet.",
+  "store": {
+    "fff.did": "5b1f6c1e-8a53-4a55-9a0f-2f1c7c0f4a11",
+    "fff.splash": "1", "fff.intro": "1", "fff.howto": "1",
+    "fff.frank": "2",
+    "fff.set": "{\"music\":true,\"sfx\":false,\"buzz\":true,\"easy\":true}",
+    "fff.far.0": "63", "fff.top.0": "6420"
+  },
+  "want": { "settings": { "music": true, "sfx": false, "buzz": true, "easy": true, "diff": -1 }, "levels": [], "franks": [], "bad": [], "v": 2 }
+}

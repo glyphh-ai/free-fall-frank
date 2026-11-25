@@ -1,0 +1,78 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;box-sizing:border-box}
+body{width:1080px;height:1350px;background:#14111f;font-family:"Courier New",monospace;font-weight:700;color:#fff;overflow:hidden;position:relative}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(54,215,230,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(54,215,230,.05) 1px,transparent 1px);background-size:45px 45px}
+h1{position:absolute;top:44px;left:0;right:0;text-align:center;font-size:76px;color:#f5b800;letter-spacing:2px;text-shadow:5px 5px 0 #000}
+.sub{position:absolute;top:136px;left:0;right:0;text-align:center;font-size:30px;color:#36d7e6;letter-spacing:6px}
+.shot{position:absolute;left:50px;top:210px;width:420px;height:908px;border:4px solid #0a0812;box-shadow:8px 8px 0 #000;overflow:hidden}
+.shot img{width:100%;display:block}
+.tag{position:absolute;font-size:19px;background:#0a0812;padding:6px 10px;border:2px solid currentColor;white-space:nowrap}
+.box{position:absolute;border:3px dashed #f5b800}
+.right{position:absolute;left:510px;right:46px;top:210px}
+.card{background:rgba(10,8,18,.85);border:3px solid #2a2440;padding:13px 20px;margin-bottom:12px;box-shadow:6px 6px 0 #000}
+.n{font-size:18px;color:#999;letter-spacing:3px}
+.eq{white-space:nowrap;font-size:28px;margin-top:8px;line-height:1.25}
+.eq b{color:#f5b800}.eq i{font-style:normal;color:#36d7e6}
+.note{font-size:19px;color:#bbb;margin-top:8px;line-height:1.35;font-weight:400}
+.speeds{margin-top:10px}
+.sp{display:flex;align-items:center;gap:10px;font-size:18px;margin-top:7px}
+.sp span:first-child{width:140px;white-space:nowrap;color:#ccc}
+.bar{height:18px;background:linear-gradient(90deg,#36d7e6,#f5b800)}
+.sp span:last-child{color:#fff;white-space:nowrap}
+.tum{display:flex;align-items:center;gap:22px;margin-top:12px}
+.frank{display:grid;gap:0}
+.frank div{width:34px;height:34px;border:3px solid #0a0812}
+.p{background:#3a4199}.c{background:#2fd3d0}.y{background:#f5b800;position:relative}
+.y::before,.y::after{content:"";position:absolute;width:6px;height:8px;background:#0a0812;top:12px}
+.y::before{left:7px}.y::after{right:7px}
+.arrow{font-size:30px;color:#36d7e6}
+.foot{position:absolute;bottom:30px;left:50px;right:46px;display:flex;align-items:center;justify-content:space-between}
+.foot img{height:86px}
+.foot .url{font-size:34px;color:#f5b800;text-shadow:3px 3px 0 #000}
+</style></head><body>
+<div class="grid"></div>
+<h1>FREE FALL FRANK</h1>
+<div class="sub">THE PHYSICS OF THE FALL</div>
+
+<div class="shot"><img src="fall.jpg">
+  <div class="box" style="left:44px;top:126px;width:60px;height:118px"></div>
+  <div class="tag" style="left:116px;top:150px;color:#f5b800">FRANK = 1×3 BLOCKS</div>
+  <div class="tag" style="left:120px;top:330px;color:#36d7e6">GATE · ON THE BEAT</div>
+  <div class="tag" style="left:120px;top:610px;color:#36d7e6">"1&gt;" = ONE TAP, RIGHT</div>
+  <div class="tag" style="left:18px;top:850px;color:#f5b800">↓ rpb ROWS EVERY BEAT</div>
+</div>
+
+<div class="right">
+  <div class="card"><div class="n">1 · THE SONG IS THE CLOCK</div>
+    <div class="eq"><i>beat</i> = seconds × <b>BPM</b> ÷ 60</div>
+    <div class="note">No gravity, no random. 100 BPM.</div></div>
+  <div class="card"><div class="n">2 · WHERE FRANK IS</div>
+    <div class="eq" style="font-size:24px"><i>row</i> = row₀ + (<i>beat</i> − b₀) × <b>rpb</b></div>
+    <div class="note">rpb = rows per beat, fixed per stretch, so every gate lands on a beat.</div></div>
+  <div class="card"><div class="n">3 · HOW FAST HE FALLS</div>
+    <div class="eq"><i>speed</i> = <b>rpb</b> × <b>BPM</b> ÷ 60</div>
+    <div class="speeds">
+      <div class="sp"><span>MANHOLE  6</span><div class="bar" style="width:54px"></div><span>10 rows/s</span></div>
+      <div class="sp"><span>CORE    12</span><div class="bar" style="width:108px"></div><span>20 rows/s</span></div>
+      <div class="sp"><span>SLIDE   16</span><div class="bar" style="width:144px"></div><span>26.7 rows/s</span></div>
+      <div class="sp"><span>INSANE ×1.4</span><div class="bar" style="width:202px"></div><span>37.3 rows/s</span></div>
+    </div></div>
+  <div class="card"><div class="n">4 · A TAP = A TUMBLE</div>
+    <div class="tum">
+      <div class="frank"><div class="p"></div><div class="c"></div><div class="y"></div></div>
+      <div class="arrow">↻90°</div>
+      <div class="frank" style="grid-template-columns:repeat(3,26px);margin-top:52px"><div class="y" style="width:26px;height:26px"></div><div class="c" style="width:26px;height:26px"></div><div class="p" style="width:26px;height:26px"></div></div>
+      <div style="margin-left:4px">
+        <div class="eq" style="font-size:20px;margin-top:0"><i>θ</i> = ±90° × <i>t</i> ÷ <b>0.09s</b></div>
+      </div>
+    </div>
+    <div class="eq" style="font-size:20px"><i>x</i> = px + dx·cos<i>θ</i> − dy·sin<i>θ</i></div>
+    <div class="eq" style="font-size:20px;margin-top:2px"><i>y</i> = dx·sin<i>θ</i> + dy·cos<i>θ</i></div>
+    <div class="note">He swings round his bottom corner (px): 1×3 becomes 3×1.</div></div>
+  <div class="card"><div class="n">5 · THE FAN TURNS THE WORLD</div>
+    <div class="eq" style="font-size:23px"><i>a</i> += (<b>turn</b> − <i>a</i>) × (1 − e<sup>−10·dt</sup>)</div>
+    <div class="note">The board swings to 45° or 90°, shrinking to 80% at a quarter turn. Only the view turns: the rules stay put.</div></div>
+</div>
+
+<div class="foot"><img src="glyphh-logo-black.png"><div class="url">freefallfrank.com</div></div>
+</body></html>

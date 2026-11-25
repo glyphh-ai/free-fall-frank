@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Free Fall Frank: Instagram ad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=block" rel="stylesheet">
+<style>
+  /* The Glyphh reel look (black, Geist and JetBrains Mono, the purple-pink-gold glow, a phone with the real thing in
+     it), cut fast for an ad. Everything on screen is a pure function of the clock (window.seek), so each frame
+     renders the same wherever it is drawn. The phone shows the game's own frames (capture.mjs). The cuts and the
+     pulse sit on the beat of the game's own track: 100 a minute, 0.6 s. */
+  html, body { margin: 0; background: #000; }
+  body { width: 1080px; height: 1920px; overflow: hidden; position: relative; color: #fff; font-family: 'Geist', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  .a { position: absolute; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 34px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: linear-gradient(90deg, #ffd76a, #ff5fa2 55%, #a48cff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .head { font-size: 76px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.06; text-shadow: 0 0 34px rgba(164,140,255,.5); }
+  #bg { position: absolute; inset: -120px; z-index: 0; }
+  #spark, #burst { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+  #flash { position: absolute; inset: 0; z-index: 9; opacity: 0; pointer-events: none; background: radial-gradient(circle at 50% 45%, #fff 0%, #ff5fa2 34%, #7c5cff 72%); mix-blend-mode: screen; }
+  #red { position: absolute; inset: 0; z-index: 9; opacity: 0; pointer-events: none; background: radial-gradient(circle at 50% 50%, rgba(255,60,90,.0) 30%, rgba(255,40,80,.85) 100%); }
+  .sp { position: absolute; border-radius: 50%; }
+  #phone { transform-origin: 50% 40%; left: 232px; top: 372px; width: 604px; height: 1308px; padding: 6px; border-radius: 52px; background: #1a1433; border: 3px solid #5b46b8; box-shadow: 0 0 60px rgba(124,92,255,.45); z-index: 3; }
+  #screen { position: relative; width: 604px; height: 1308px; border-radius: 44px; overflow: hidden; background: #000; }
+  #rec { position: absolute; left: 0; top: 0; width: 604px; height: 1308px; }
+  .arrow { position: absolute; top: 880px; z-index: 5; font-family: 'JetBrains Mono', monospace; font-size: 250px; font-weight: 700; line-height: 1; opacity: 0; background: linear-gradient(180deg, #ffd76a, #ff5fa2 60%, #a48cff); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 28px rgba(255,95,162,.8)); }
+  #badge { right: 150px; top: 338px; z-index: 6; padding: 12px 26px; border-radius: 14px; font-size: 38px; font-weight: 700; letter-spacing: 0.08em; color: #fff; background: linear-gradient(90deg, #ff2d6f, #c2185b); box-shadow: 0 0 44px rgba(255,45,111,.85); opacity: 0; }
+  #cta { left: 0; top: 1716px; width: 1080px; text-align: center; z-index: 4; font-family: 'JetBrains Mono', monospace; font-size: 40px; font-weight: 600; color: #fff; }
+  #cta b { background: linear-gradient(90deg, #ffd76a, #ff5fa2 55%, #a48cff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #end { position: absolute; inset: 0; z-index: 7; opacity: 0; background: radial-gradient(circle at 50% 42%, #3a1a7a 0%, #12062c 42%, #000 74%); }
+  .px { font-family: 'Courier New', Courier, monospace; font-weight: 700; text-align: center; left: 0; width: 1080px; }
+  #pill { left: 110px; top: 1140px; width: 860px; height: 150px; border-radius: 28px; background: #ff4fd8; box-shadow: 0 12px 0 #8a1f73, 0 0 80px rgba(255,79,216,.7); display: flex; align-items: center; justify-content: center; font-family: 'Courier New', Courier, monospace; font-weight: 700; font-size: 84px; color: #fff; text-shadow: 6px 6px 0 rgba(0,0,0,.5); }
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="spark"></div>
+<div id="burst"></div>
+<div id="flash"></div>
+<div id="red"></div>
+
+<div class="a" id="headwrap" style="left:72px;top:96px;width:936px;z-index:5">
+  <div class="kicker" id="hk"></div>
+  <div class="head" id="ht" style="margin-top:14px"></div>
+</div>
+
+<div class="a" id="phone"><div id="screen"><img id="rec" alt=""></div></div>
+<div class="a mono" id="badge"></div>
+<div class="arrow" id="aL" style="left:24px">&lt;</div>
+<div class="arrow" id="aR" style="right:24px">&gt;</div>
+<div class="a" id="cta"><b>freefallfrank.com</b> · free · no download</div>
+
+<!-- The end card: the game's own title lettering, one button, the address, the Glyphh mark -->
+<div id="end">
+  <div class="a px" id="e1" style="top:330px;font-size:150px;color:#35e8ff;text-shadow:10px 10px 0 #0a0812">FREE FALL</div>
+  <div class="a px" id="e2" style="top:470px;font-size:290px;color:#ffd23f;text-shadow:16px 16px 0 #0a0812;letter-spacing:-6px">FRANK</div>
+  <div class="a" id="e3" style="left:72px;top:880px;width:936px;text-align:center;font-size:66px;font-weight:700;letter-spacing:-0.02em">Play it right now.<br>Free. In your browser.</div>
+  <div class="a" id="pill">PLAY</div>
+  <div class="a mono" id="e4" style="left:0;top:1350px;width:1080px;text-align:center;font-size:62px;font-weight:700"><span style="background:linear-gradient(90deg,#ffd76a,#ff5fa2 55%,#a48cff);-webkit-background-clip:text;background-clip:text;color:transparent">freefallfrank.com</span></div>
+  <div class="a mono" id="e5" style="left:0;top:1450px;width:1080px;text-align:center;font-size:36px;color:#c8c8c8">no download · no sign-up · 24 Franks</div>
+  <div class="a" id="e6" style="left:0;top:1650px;width:1080px;display:flex;align-items:center;justify-content:center;gap:18px;font-family:'JetBrains Mono',monospace;font-size:30px;color:#999">a game from <img src="glyphh-logo-text-white.png" alt="glyphh" style="height:44px"></div>
+</div>
+
+<script>
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const ease = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+const e = (t, a, b) => ease((t - a) / (b - a));
+const S = (id) => document.getElementById(id);
+const mk = (parent, cls, css) => { const n = document.createElement('div'); n.className = cls; n.style.cssText = css; parent.appendChild(n); return n; };
+
+// Which ad this is comes from render.mjs (window.AD, one of the cuts in cuts.mjs): its tempo, what is in the
+// phone and when, and the headlines. Its times are in beats.
+const AD = window.AD || { bpm: 100, seg: [], heads: [], end: 1, dur: 2 };
+const B = 60 / AD.bpm;                           // one beat of the track, as this cut plays it
+const CLIP = window.CLIPS || {};                 // capture.mjs: frames, the taps and where he dies, per clip
+const SEG = AD.seg.map(([a, b, c]) => [a * B, b * B, c]);          // what is in the phone, and when: [from, to, clip]
+const END = AD.end * B, DUR = AD.dur * B;
+const HEADS = AD.heads.map(([a, b, k, h]) => [a * B, b * B, k, h]);
+const CUTS = SEG.map((s) => s[0]).concat([END]);
+const segAt = (t) => SEG.find((s) => t >= s[0] && t < s[1]);
+const deadSeg = SEG.find((s) => s[2] === AD.dead);
+const DEAD = deadSeg && CLIP[AD.dead] && CLIP[AD.dead].dead >= 0 ? deadSeg[0] + CLIP[AD.dead].dead / 30 : -9;
+
+// the glow, the sparks and the bursts
+let gs = 7; const gr = () => (gs = (gs * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+const SPK = ['#ffd76a', '#ff5fa2', '#ffffff', '#a48cff', '#35e8ff'];
+const sparks = Array.from({ length: 60 }, () => {
+  const s = 3 + gr() * 8, c = SPK[Math.floor(gr() * 5)];
+  return { x: gr() * 1080, y: gr() * 1920, v: 60 + gr() * 140, k: 1 + gr() * 3, ph: gr() * 6.28, n: mk(S('spark'), 'sp', `width:${s}px;height:${s}px;background:${c};box-shadow:0 0 ${s * 2.5}px ${c}`) };
+});
+const BURSTS = [[DEAD, 540, 1000], [END + 0.05, 540, 560], [END + 2 * B, 540, 1215]].map(([at, x, y]) => ({
+  at, x, y, ps: Array.from({ length: 40 }, () => {
+    const s = 6 + gr() * 12, c = SPK[Math.floor(gr() * 5)];
+    return { a: gr() * 6.28, d: 220 + gr() * 420, n: mk(S('burst'), 'sp', `border-radius:0;width:${s}px;height:${s}px;background:${c};box-shadow:0 0 ${s * 2}px ${c};opacity:0`) };
+  }),
+}));
+
+const rec = S('rec');
+let shown = '';
+const rise = (n, t, a, d) => { const p = e(t, a, a + (d || 0.3)); n.style.opacity = p; n.style.transform = `translateY(${(1 - p) * 40}px) scale(${1.12 - 0.12 * p})`; };
+
+window.seek = (t) => {
+  const fr = t / B - Math.floor(t / B), bar = Math.floor(t / B) % 4 === 0 ? 1 : 0.65, pulse = Math.exp(-fr * 5) * bar;
+  const a = t * 0.5;
+  S('bg').style.background = `radial-gradient(760px 760px at ${86 + 10 * Math.sin(a)}% ${8 + 6 * Math.cos(a)}%, rgba(124,92,255,${0.32 + 0.3 * pulse}), transparent 70%),` +
+    `radial-gradient(820px 820px at ${8 + 10 * Math.cos(a * 0.8)}% ${90 + 6 * Math.sin(a * 0.8)}%, rgba(255,95,162,${0.22 + 0.26 * pulse}), transparent 70%),` +
+    `radial-gradient(520px 520px at ${90 + 6 * Math.sin(a * 1.3)}% 86%, rgba(255,215,106,${0.1 + 0.14 * pulse}), transparent 70%), #000`;
+  // the sparks fall upward past him: he is the one going down
+  for (const s of sparks) {
+    const y = ((s.y - t * s.v) % 1920 + 1920) % 1920, tw = 0.5 + 0.5 * Math.sin(t * s.k + s.ph);
+    s.n.style.transform = `translate(${s.x}px, ${y}px) scaleY(${1 + s.v / 40})`;
+    s.n.style.opacity = 0.14 + 0.35 * tw + 0.35 * pulse;
+  }
+  let fl = 0;
+  for (const c of CUTS) if (t >= c && t < c + 0.3) fl = Math.max(fl, (1 - (t - c) / 0.3) * 0.55);
+  S('flash').style.opacity = fl;
+  for (const Bu of BURSTS) {
+    const p = clamp((t - Bu.at) / 1.1), q = 1 - (1 - p) ** 3, on = t >= Bu.at && p < 1;
+    for (const s of Bu.ps) { s.n.style.opacity = on ? 1 - p : 0; s.n.style.transform = `translate(${Bu.x + Math.cos(s.a) * s.d * q}px, ${Bu.y + Math.sin(s.a) * s.d * q}px) rotate(${q * 200}deg)`; }
+  }
+
+  // headline
+  const hd = HEADS.find((h) => t >= h[0] && t < h[1]);
+  if (hd) {
+    S('hk').textContent = hd[2]; S('ht').innerHTML = hd[3];
+    const hp = e(t, hd[0], hd[0] + 0.28);
+    S('headwrap').style.opacity = Math.min(hp, 1 - e(t, hd[1] - 0.12, hd[1]));
+    S('headwrap').style.transformOrigin = '0 50%';
+    S('headwrap').style.transform = `translateY(${(1 - hp) * 40}px) scale(${1 + (1 - hp) * 0.1})`;
+  } else S('headwrap').style.opacity = 0;
+
+  // the phone: a punch on every cut, a shake when he lands
+  const sg = segAt(t), since = sg ? t - sg[0] : 9, punch = Math.exp(-since * 9) * 0.06;
+  const dz = t - DEAD, shake = dz >= 0 && dz < 0.45 ? (1 - dz / 0.45) * 26 : 0;
+  S('phone').style.opacity = 1 - e(t, END - 0.05, END + 0.2);
+  S('phone').style.transform = `translate(${Math.sin(t * 90) * shake}px, ${Math.cos(t * 70) * shake}px) scale(${1 + punch + 0.008 * pulse}) rotate(${Math.sin(t * 60) * shake * 0.05}deg)`;
+  S('phone').style.boxShadow = `0 0 ${60 + 50 * pulse}px rgba(124,92,255,${0.5 + 0.35 * pulse})`;
+  S('red').style.opacity = dz >= 0 && dz < 0.5 ? (1 - dz / 0.5) * 0.9 : 0;
+  S('cta').style.opacity = (0.75 + 0.25 * pulse) * (1 - e(t, END - 0.05, END + 0.2));
+
+  // the cut's tag on the corner of the phone (INSANE MODE), throbbing with the beat
+  S('badge').textContent = AD.badge || '';
+  S('badge').style.opacity = AD.badge ? e(t, 0.15, 0.4) * (1 - e(t, END - 0.05, END + 0.2)) : 0;
+  S('badge').style.transform = `rotate(6deg) scale(${1 + 0.1 * pulse})`;
+
+  // an arrow beside the phone on every tap the game makes: left or right
+  let l = 0, r = 0;
+  if (sg && CLIP[sg[2]]) for (const tp of CLIP[sg[2]].taps) {
+    const d = t - (sg[0] + tp.f / 30);
+    if (d >= 0 && d < 0.3) { const v = 1 - d / 0.3; if (tp.dir <= 0) l = Math.max(l, v); if (tp.dir >= 0) r = Math.max(r, v); }
+  }
+  S('aL').style.opacity = l; S('aL').style.transform = `translateX(${-(1 - l) * 30}px) scale(${0.8 + 0.5 * l})`;
+  S('aR').style.opacity = r; S('aR').style.transform = `translateX(${(1 - r) * 30}px) scale(${0.8 + 0.5 * r})`;
+
+  // the end card
+  S('end').style.opacity = e(t, END - 0.05, END + 0.2);
+  rise(S('e1'), t, END + 0.05); rise(S('e2'), t, END + 0.5 * B);
+  rise(S('e3'), t, END + 1.5 * B); rise(S('pill'), t, END + 2 * B); rise(S('e4'), t, END + 2.5 * B); rise(S('e5'), t, END + 3 * B); rise(S('e6'), t, END + 3.5 * B);
+  const pp = e(t, END + 2 * B, END + 2 * B + 0.3);
+  S('pill').style.transform = `translateY(${(1 - pp) * 40}px) scale(${(1.12 - 0.12 * pp) * (1 + 0.05 * pulse)})`;
+  S('e2').style.transform += ` rotate(${Math.sin(t * 7) * 1.2}deg)`;
+  document.body.style.transform = `scale(${1 + 0.008 * pulse})`;
+
+  if (!sg || !CLIP[sg[2]]) return undefined;
+  const f = Math.min(CLIP[sg[2]].frames - 1, Math.floor((t - sg[0]) * 30 + 1e-6)), src = `${window.CLIPDIR || ''}${sg[2]}/${String(f).padStart(5, '0')}.jpg`;
+  if (src === shown) return undefined;
+  shown = src;
+  rec.src = src;
+  return rec.decode().catch(() => undefined);
+};
+window.DUR = DUR;
+window.seek(0);
+</script>
+</body>
+</html>

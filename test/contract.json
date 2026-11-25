@@ -1,0 +1,969 @@
+{
+ "note": "What the page of the release before relies on. Written by: node test/contract.cjs --accept. Read test/contract.cjs before changing it by hand.",
+ "routes": [
+  "GET /",
+  "GET /.well-known/oauth-authorization-server",
+  "GET /.well-known/oauth-protected-resource",
+  "GET /about",
+  "GET /account.js",
+  "GET /ad-cover.jpg",
+  "GET /ad.mp4",
+  "GET /ad2-cover.jpg",
+  "GET /ad2.mp4",
+  "GET /ad3-cover.jpg",
+  "GET /ad3.mp4",
+  "GET /ad4-cover.jpg",
+  "GET /ad4.mp4",
+  "GET /admin",
+  "GET /api/admin/data",
+  "GET /api/admin/payments",
+  "GET /api/admin/player",
+  "GET /api/board",
+  "GET /api/confirm",
+  "GET /api/frank",
+  "GET /api/level",
+  "GET /api/levels",
+  "GET /api/me",
+  "GET /api/profile",
+  "GET /api/store",
+  "GET /api/world",
+  "GET /apple-touch-icon.png",
+  "GET /audio.js",
+  "GET /auth/link",
+  "GET /build",
+  "GET /chart.min.js",
+  "GET /core.js",
+  "GET /favicon-16.png",
+  "GET /favicon-32.png",
+  "GET /favicon.ico",
+  "GET /franks.js",
+  "GET /game.js",
+  "GET /glyphh-logo-black.png",
+  "GET /glyphh-logo.png",
+  "GET /glyphh-spike.png",
+  "GET /healthz",
+  "GET /icon-180.png",
+  "GET /icon-192.png",
+  "GET /icon-512.png",
+  "GET /icon-maskable-512.png",
+  "GET /index.html",
+  "GET /landing/:file",
+  "GET /level",
+  "GET /manifest.json",
+  "GET /music/0.mp3",
+  "GET /music/1.mp3",
+  "GET /music/10.mp3",
+  "GET /music/11.mp3",
+  "GET /music/12.mp3",
+  "GET /music/13.mp3",
+  "GET /music/14.mp3",
+  "GET /music/15.mp3",
+  "GET /music/16.mp3",
+  "GET /music/17.mp3",
+  "GET /music/18.mp3",
+  "GET /music/19.mp3",
+  "GET /music/2.mp3",
+  "GET /music/20.mp3",
+  "GET /music/21.mp3",
+  "GET /music/22.mp3",
+  "GET /music/23.mp3",
+  "GET /music/3.mp3",
+  "GET /music/4.mp3",
+  "GET /music/5.mp3",
+  "GET /music/6.mp3",
+  "GET /music/7.mp3",
+  "GET /music/8.mp3",
+  "GET /music/9.mp3",
+  "GET /music/tracks.js",
+  "GET /net.js",
+  "GET /oauth/authorize",
+  "GET /play",
+  "GET /samples/bass.wav",
+  "GET /samples/clap.wav",
+  "GET /samples/crash.wav",
+  "GET /samples/hat.wav",
+  "GET /samples/hey.wav",
+  "GET /samples/kick.wav",
+  "GET /samples/openhat.wav",
+  "GET /samples/rim.wav",
+  "GET /samples/scratch.wav",
+  "GET /samples/snap.wav",
+  "GET /samples/snare.wav",
+  "GET /save.js",
+  "GET /sw.js",
+  "POST /api/admin/campaign",
+  "POST /api/admin/login",
+  "POST /api/admin/logout",
+  "POST /api/admin/tool",
+  "POST /api/auth/apple",
+  "POST /api/auth/google",
+  "POST /api/auth/link",
+  "POST /api/checkout",
+  "POST /api/delete-account",
+  "POST /api/earn",
+  "POST /api/heart",
+  "POST /api/level/submit",
+  "POST /api/logout",
+  "POST /api/profile",
+  "POST /api/score",
+  "POST /api/secret",
+  "POST /api/tokens",
+  "POST /api/track",
+  "POST /auth/link",
+  "POST /mcp",
+  "POST /oauth/authorize",
+  "POST /oauth/register",
+  "POST /oauth/token"
+ ],
+ "calls": {
+  "GET /api/me": {
+   "sends": [
+    {
+     "as": "nobody",
+     "status": 200
+    },
+    {
+     "as": "device",
+     "status": 200
+    },
+    {
+     "as": "a1",
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {},
+   "answers": {
+    "ads": "array",
+    "ads[]": "object",
+    "ads[].color": "string",
+    "ads[].id": "string",
+    "ads[].sub": "string",
+    "ads[].text": "string",
+    "ads[].url": "string",
+    "apple": "null",
+    "build": "string",
+    "coins": "number",
+    "free": "array",
+    "free[]": "number",
+    "google": "string",
+    "hearts": "object",
+    "hearts.city": "object",
+    "hearts.city.mine": "boolean",
+    "hearts.city.n": "number",
+    "hearts.rock": "object",
+    "hearts.rock.mine": "boolean",
+    "hearts.rock.n": "number",
+    "id": "null|string",
+    "levels": "object",
+    "levels.rock": "object",
+    "levels.rock.found": "array",
+    "levels.rock.name": "string",
+    "levels.rock.owned": "boolean",
+    "levels.rock.price": "number",
+    "levels.rock.secrets": "number",
+    "link": "boolean",
+    "pack": "object",
+    "pack.from": "number",
+    "pack.id": "string",
+    "pack.name": "string",
+    "pack.price": "number",
+    "pack.to": "number",
+    "packs": "array",
+    "price": "number",
+    "secretTokens": "number",
+    "store": "boolean",
+    "tokenPrice": "number",
+    "unlocked": "array",
+    "user": "null|object",
+    "user.email": "string",
+    "user.name": "string"
+   }
+  },
+  "GET /api/world": {
+   "sends": [
+    {
+     "as": "device",
+     "query": {
+      "id": "rock"
+     },
+     "status": 200
+    },
+    {
+     "as": "a1",
+     "query": {
+      "id": "rock"
+     },
+     "status": 200
+    },
+    {
+     "as": "device",
+     "query": {
+      "id": "rock",
+      "v": 1
+     },
+     "new": true,
+     "status": 200
+    }
+   ],
+   "query": {
+    "id": "string",
+    "v": "number"
+   },
+   "body": {},
+   "answers": {
+    "id": "string",
+    "name": "string",
+    "owned": "boolean",
+    "price": "number",
+    "spec": "object",
+    "spec.bpm": "number",
+    "spec.defs": "array",
+    "spec.defs[]": "object",
+    "spec.defs[].beats": "number",
+    "spec.defs[].blow": "number",
+    "spec.defs[].decoys": "number",
+    "spec.defs[].doubles": "boolean",
+    "spec.defs[].every": "number",
+    "spec.defs[].gatesAt": "array",
+    "spec.defs[].gatesAt[]": "number",
+    "spec.defs[].key": "string",
+    "spec.defs[].kinds": "array",
+    "spec.defs[].kinds[]": "string",
+    "spec.defs[].loose": "number",
+    "spec.defs[].maxTaps": "number",
+    "spec.defs[].minTaps": "number",
+    "spec.defs[].mode": "string",
+    "spec.defs[].name": "string",
+    "spec.defs[].pattern": "string",
+    "spec.defs[].portal": "boolean",
+    "spec.defs[].post": "number",
+    "spec.defs[].riff": "boolean",
+    "spec.defs[].rpb": "number",
+    "spec.defs[].saws": "number",
+    "spec.defs[].spring": "number",
+    "spec.defs[].style": "string",
+    "spec.defs[].teeth": "boolean",
+    "spec.defs[].theme": "string",
+    "spec.defs[].thick": "number",
+    "spec.defs[].tip": "string",
+    "spec.defs[].vary": "array",
+    "spec.defs[].vary[]": "number",
+    "spec.defs[].wall": "boolean",
+    "spec.defs[].wide": "boolean",
+    "spec.hard": "number",
+    "spec.hook": "number",
+    "spec.lead": "number",
+    "spec.prog": "number",
+    "spec.secrets": "array",
+    "spec.secrets[]": "object",
+    "spec.secrets[].art": "string",
+    "spec.secrets[].at": "number",
+    "spec.secrets[].id": "string",
+    "spec.secrets[].kind": "string",
+    "spec.secrets[].sec": "string",
+    "spec.seed": "number",
+    "spec.song": "string",
+    "spec.tr": "number",
+    "spec.trait": "string",
+    "taste": "boolean",
+    "v": "number"
+   }
+  },
+  "POST /api/track": {
+   "sends": [
+    {
+     "as": "nobody",
+     "body": {
+      "did": ":did",
+      "t": "visit",
+      "src": "insta-dec",
+      "ref": "instagram.com"
+     },
+     "status": 200
+    },
+    {
+     "as": "nobody",
+     "body": {
+      "did": ":did",
+      "t": "run",
+      "frank": 0,
+      "pct": 12,
+      "sec": "manhole",
+      "secs": 21.4,
+      "tokens": 9,
+      "res": "splat",
+      "easy": 0
+     },
+     "status": 200
+    },
+    {
+     "as": "nobody",
+     "body": {
+      "did": ":did",
+      "t": "run",
+      "frank": 100,
+      "pct": 12,
+      "sec": "manhole",
+      "secs": 21.4,
+      "tokens": 9,
+      "res": "taste",
+      "easy": 0
+     },
+     "status": 200
+    },
+    {
+     "as": "nobody",
+     "body": {
+      "did": ":did",
+      "t": "ad",
+      "ad": "glyphh",
+      "k": "view"
+     },
+     "status": 200
+    },
+    {
+     "as": "device",
+     "key": true,
+     "body": {
+      "did": ":did",
+      "t": "run",
+      "frank": 0,
+      "pct": 12,
+      "sec": "manhole",
+      "secs": 21.4,
+      "tokens": 9,
+      "res": "splat",
+      "easy": 0
+     },
+     "new": true,
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "ad": "string",
+    "did": "string",
+    "easy": "number",
+    "frank": "number",
+    "k": "string",
+    "pct": "number",
+    "ref": "string",
+    "res": "string",
+    "sec": "string",
+    "secs": "number",
+    "src": "string",
+    "t": "string",
+    "tokens": "number"
+   },
+   "answers": {
+    "ok": "boolean"
+   }
+  },
+  "POST /api/tokens": {
+   "sends": [
+    {
+     "as": "device",
+     "body": {
+      "frank": 0,
+      "count": 100000
+     },
+     "status": 200
+    },
+    {
+     "as": "a1",
+     "body": {
+      "frank": 100,
+      "count": 3
+     },
+     "status": 200
+    },
+    {
+     "as": "device",
+     "key": true,
+     "body": {
+      "frank": 0,
+      "count": 4
+     },
+     "new": true,
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "count": "number",
+    "frank": "number"
+   },
+   "answers": {
+    "coins": "number"
+   }
+  },
+  "POST /api/earn": {
+   "sends": [
+    {
+     "as": "device",
+     "body": {
+      "frank": 6
+     },
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "frank": "number"
+   },
+   "answers": {
+    "coins": "number",
+    "ok": "boolean"
+   }
+  },
+  "POST /api/heart": {
+   "sends": [
+    {
+     "as": "device",
+     "body": {
+      "level": "city",
+      "on": true
+     },
+     "status": 200
+    },
+    {
+     "as": "a1",
+     "body": {
+      "level": ":level",
+      "on": false
+     },
+     "status": 200
+    },
+    {
+     "as": "device",
+     "key": true,
+     "body": {
+      "level": "rock",
+      "on": true
+     },
+     "new": true,
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "level": "string",
+    "on": "boolean"
+   },
+   "answers": {
+    "n": "number",
+    "ok": "boolean"
+   }
+  },
+  "POST /api/secret": {
+   "sends": [
+    {
+     "as": "device",
+     "body": {
+      "level": "rock",
+      "id": "r1"
+     },
+     "status": 200
+    },
+    {
+     "as": "a1",
+     "key": true,
+     "body": {
+      "level": "rock",
+      "id": "r1"
+     },
+     "new": true,
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "id": "string",
+    "level": "string"
+   },
+   "answers": {
+    "coins": "number",
+    "first": "boolean",
+    "found": "array",
+    "found[]": "string",
+    "ok": "boolean",
+    "secrets": "number",
+    "tokens": "number"
+   }
+  },
+  "POST /api/score": {
+   "sends": [
+    {
+     "as": "device",
+     "body": {
+      "level": "city",
+      "score": 1200,
+      "pct": 12,
+      "name": "PLAYER 1234",
+      "played": true
+     },
+     "status": 200
+    },
+    {
+     "as": "a1",
+     "body": {
+      "level": ":level",
+      "score": 900,
+      "pct": 9,
+      "name": "Ann",
+      "played": true
+     },
+     "status": 200
+    },
+    {
+     "as": "device",
+     "body": {
+      "level": "city",
+      "score": 0,
+      "pct": 0,
+      "name": "New Name"
+     },
+     "status": 200
+    },
+    {
+     "as": "device",
+     "key": true,
+     "body": {
+      "level": "city",
+      "score": 1300,
+      "pct": 13,
+      "name": "New Name",
+      "played": true
+     },
+     "new": true,
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "level": "string",
+    "name": "string",
+    "pct": "number",
+    "played": "boolean",
+    "score": "number"
+   },
+   "answers": {
+    "level": "string",
+    "me": "object",
+    "me.name": "string",
+    "me.pct": "number",
+    "me.rank": "number",
+    "me.score": "number",
+    "players": "number",
+    "top": "array",
+    "top[]": "object",
+    "top[].me": "boolean",
+    "top[].name": "string",
+    "top[].pct": "number",
+    "top[].rank": "number",
+    "top[].score": "number"
+   }
+  },
+  "GET /api/board": {
+   "sends": [
+    {
+     "as": "device",
+     "query": {
+      "level": "city"
+     },
+     "status": 200
+    },
+    {
+     "as": "a1",
+     "query": {
+      "level": ":level"
+     },
+     "status": 200
+    },
+    {
+     "as": "nobody",
+     "query": {
+      "level": "rock"
+     },
+     "status": 200
+    }
+   ],
+   "query": {
+    "level": "string"
+   },
+   "body": {},
+   "answers": {
+    "level": "string",
+    "me": "null|object",
+    "me.name": "string",
+    "me.pct": "number",
+    "me.rank": "number",
+    "me.score": "number",
+    "players": "number",
+    "top": "array",
+    "top[]": "object",
+    "top[].me": "boolean",
+    "top[].name": "string",
+    "top[].pct": "number",
+    "top[].rank": "number",
+    "top[].score": "number"
+   }
+  },
+  "GET /api/levels": {
+   "sends": [
+    {
+     "as": "device",
+     "query": {
+      "sort": "top"
+     },
+     "status": 200
+    },
+    {
+     "as": "device",
+     "query": {
+      "sort": "new"
+     },
+     "status": 200
+    },
+    {
+     "as": "device",
+     "query": {
+      "sort": "top",
+      "q": "alley",
+      "difficulty": "TRICKY",
+      "page": 1,
+      "per": 9
+     },
+     "new": true,
+     "status": 200
+    }
+   ],
+   "query": {
+    "difficulty": "string",
+    "page": "number",
+    "per": "number",
+    "q": "string",
+    "sort": "string"
+   },
+   "body": {},
+   "answers": {
+    "levels": "array",
+    "levels[]": "object",
+    "levels[].author": "string",
+    "levels[].difficulty": "object",
+    "levels[].difficulty.level": "number",
+    "levels[].difficulty.of": "number",
+    "levels[].difficulty.points": "number",
+    "levels[].difficulty.tier": "string",
+    "levels[].hearts": "number",
+    "levels[].id": "string",
+    "levels[].name": "string",
+    "levels[].play_url": "string",
+    "levels[].plays": "number",
+    "levels[].stretches": "number",
+    "levels[].world": "number",
+    "page": "number",
+    "pages": "number",
+    "per": "number",
+    "total": "number"
+   }
+  },
+  "GET /api/level": {
+   "sends": [
+    {
+     "as": "device",
+     "query": {
+      "id": ":level"
+     },
+     "status": 200
+    },
+    {
+     "as": "a1",
+     "query": {
+      "id": ":level"
+     },
+     "status": 200
+    }
+   ],
+   "query": {
+    "id": "string"
+   },
+   "body": {},
+   "answers": {
+    "author": "string",
+    "created": "number",
+    "difficulty": "object",
+    "difficulty.level": "number",
+    "difficulty.of": "number",
+    "difficulty.points": "number",
+    "difficulty.tier": "string",
+    "hearts": "number",
+    "id": "string",
+    "mine": "boolean",
+    "name": "string",
+    "plays": "number",
+    "sections": "array",
+    "sections[]": "object",
+    "sections[].beats": "number",
+    "sections[].blowers": "number",
+    "sections[].bonus": "boolean",
+    "sections[].kind": "string",
+    "sections[].pattern": "string",
+    "sections[].posts": "number",
+    "sections[].saws": "number",
+    "sections[].speed": "number",
+    "sections[].springs": "number",
+    "sections[].taps": "array",
+    "sections[].taps[]": "number",
+    "sections[].thick": "number",
+    "sections[].wide": "boolean",
+    "seed": "number",
+    "status": "string",
+    "v": "number",
+    "world": "number",
+    "yours": "boolean"
+   }
+  },
+  "GET /api/frank": {
+   "sends": [
+    {
+     "as": "device",
+     "query": {
+      "id": ":frank"
+     },
+     "status": 200
+    }
+   ],
+   "query": {
+    "id": "string"
+   },
+   "body": {},
+   "answers": {
+    "extra": "string",
+    "hair": "string",
+    "hat": "string",
+    "head": "string",
+    "id": "string",
+    "legs": "string",
+    "name": "string",
+    "torso": "string"
+   }
+  },
+  "GET /api/profile": {
+   "sends": [
+    {
+     "as": "device",
+     "status": 200
+    },
+    {
+     "as": "a1",
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {},
+   "answers": {
+    "code": "string",
+    "connector": "string",
+    "frank": "string",
+    "franks": "array",
+    "has_pack": "boolean",
+    "levels": "array",
+    "name": "string"
+   }
+  },
+  "POST /api/profile": {
+   "sends": [
+    {
+     "as": "device",
+     "body": {
+      "frank": "3"
+     },
+     "status": 200
+    },
+    {
+     "as": "a1",
+     "body": {
+      "name": "Ann B"
+     },
+     "status": 200
+    },
+    {
+     "as": "device",
+     "body": {
+      "frank": ":frank"
+     },
+     "status": 200
+    },
+    {
+     "as": "device",
+     "key": true,
+     "body": {
+      "name": "Keyed"
+     },
+     "new": true,
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "frank": "string",
+    "name": "string"
+   },
+   "answers": {
+    "code": "string",
+    "connector": "string",
+    "frank": "string",
+    "franks": "array",
+    "has_pack": "boolean",
+    "levels": "array",
+    "name": "string"
+   }
+  },
+  "POST /api/level/submit": {
+   "sends": [
+    {
+     "as": "owner",
+     "body": {
+      "id": ":level2"
+     },
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "id": "string"
+   },
+   "answers": {
+    "id": "string",
+    "status": "string"
+   }
+  },
+  "POST /api/auth/link": {
+   "sends": [
+    {
+     "as": "device",
+     "body": {
+      "email": ":mail",
+      "back": "/?screen=select"
+     },
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "back": "string",
+    "email": "string"
+   },
+   "answers": {
+    "ok": "boolean"
+   }
+  },
+  "POST /api/auth/google": {
+   "sends": [
+    {
+     "as": "device2",
+     "body": {
+      "credential": ":google"
+     },
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "credential": "string"
+   },
+   "answers": {
+    "ok": "boolean"
+   }
+  },
+  "GET /api/store": {
+   "sends": [
+    {
+     "as": "device",
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {},
+   "answers": {
+    "live": "boolean",
+    "ok": "boolean"
+   }
+  },
+  "POST /api/checkout": {
+   "sends": [
+    {
+     "as": "a1",
+     "body": {
+      "pack": "classic"
+     },
+     "status": 200
+    },
+    {
+     "as": "a2",
+     "body": {
+      "level": "rock"
+     },
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {
+    "level": "string",
+    "pack": "string"
+   },
+   "answers": {
+    "url": "string"
+   }
+  },
+  "GET /api/confirm": {
+   "sends": [
+    {
+     "as": "a3",
+     "query": {
+      "session_id": ":session"
+     },
+     "status": 200
+    }
+   ],
+   "query": {
+    "session_id": "string"
+   },
+   "body": {},
+   "answers": {
+    "level": "string",
+    "ok": "boolean"
+   }
+  },
+  "POST /api/logout": {
+   "sends": [
+    {
+     "as": "a1",
+     "body": {},
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {},
+   "answers": {
+    "ok": "boolean"
+   }
+  },
+  "POST /api/delete-account": {
+   "sends": [
+    {
+     "as": "a4",
+     "body": {},
+     "status": 200
+    }
+   ],
+   "query": {},
+   "body": {},
+   "answers": {
+    "ok": "boolean"
+   }
+  }
+ }
+}

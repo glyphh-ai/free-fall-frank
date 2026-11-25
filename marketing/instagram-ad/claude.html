@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Free Fall Frank: the Claude side</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=block" rel="stylesheet">
+<style>
+  /* The wide cut (1920 x 1080, for Reddit): the same Glyphh reel look as ad.html (black, Geist and JetBrains Mono,
+     the purple-pink-gold glow), laid out as a desk: a chat with Claude on the left, the game on the right. The
+     chat is a picture of the conversation, not a recording of an app: what it shows are the connector's own tool
+     names and the numbers the game's builder gives for the level asked for. Everything is a pure function of the
+     clock (window.seek). The cuts and the pulse sit on the beat of the level's own track. */
+  html, body { margin: 0; background: #000; }
+  body { width: 1920px; height: 1080px; overflow: hidden; position: relative; color: #fff; font-family: 'Geist', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  .a { position: absolute; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  #bg { position: absolute; inset: -120px; z-index: 0; }
+  #spark { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .sp { position: absolute; border-radius: 50%; }
+  #flash { position: absolute; inset: 0; z-index: 9; opacity: 0; pointer-events: none; background: radial-gradient(circle at 78% 50%, #fff 0%, #ff5fa2 30%, #7c5cff 66%, transparent 90%); mix-blend-mode: screen; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: linear-gradient(90deg, #ffd76a, #ff5fa2 55%, #a48cff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .head { font-size: 74px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.04; text-shadow: 0 0 34px rgba(164,140,255,.5); }
+  #chat { left: 80px; top: 330px; width: 1120px; height: 640px; border-radius: 30px; background: rgba(18,14,34,.92); border: 2px solid #3c2f7a; box-shadow: 0 0 60px rgba(124,92,255,.3); z-index: 3; overflow: hidden; display: flex; flex-direction: column; }
+  #bar { flex: none; height: 62px; display: flex; align-items: center; gap: 14px; padding: 0 26px; border-bottom: 2px solid #2a2156; font-size: 24px; font-weight: 600; }
+  #bar i { width: 14px; height: 14px; border-radius: 50%; background: #d97757; display: inline-block; }
+  #bar span { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 19px; color: #b9b4d0; border: 2px solid #3c2f7a; border-radius: 999px; padding: 5px 16px; }
+  #bar span b { color: #5fd17a; font-weight: 700; }
+  #log { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; padding: 22px 26px 26px; overflow: hidden; }
+  .msg { max-width: 860px; font-size: 29px; line-height: 1.32; padding: 16px 22px; border-radius: 22px; }
+  .you { align-self: flex-end; background: #3b2f86; border-bottom-right-radius: 6px; }
+  .claude { align-self: flex-start; background: #221b3f; border: 2px solid #33295f; border-bottom-left-radius: 6px; }
+  .tool { align-self: flex-start; display: flex; align-items: center; gap: 14px; font-family: 'JetBrains Mono', monospace; font-size: 22px; color: #b9b4d0; padding: 9px 18px; border-radius: 14px; background: #15112a; border: 2px solid #2a2156; }
+  .tool b { color: #ffd76a; font-weight: 700; }
+  .tool u { text-decoration: none; color: #5fd17a; font-weight: 700; }
+  .link { font-family: 'JetBrains Mono', monospace; color: #7fe9ff; }
+  .caret { display: inline-block; width: 3px; height: 1em; background: #fff; vertical-align: -0.12em; margin-left: 2px; }
+  #phone { transform-origin: 50% 45%; left: 1352px; top: 46px; width: 452px; height: 978px; padding: 6px; border-radius: 44px; background: #1a1433; border: 3px solid #5b46b8; box-shadow: 0 0 60px rgba(124,92,255,.45); z-index: 3; }
+  #screen { position: relative; width: 452px; height: 978px; border-radius: 38px; overflow: hidden; background: #000; }
+  #rec { position: absolute; left: 0; top: 0; width: 452px; height: 978px; }
+  #cta { left: 80px; top: 1000px; width: 1120px; z-index: 4; font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 600; color: #fff; }
+  #cta b { background: linear-gradient(90deg, #ffd76a, #ff5fa2 55%, #a48cff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #end { position: absolute; inset: 0; z-index: 7; opacity: 0; background: radial-gradient(circle at 50% 44%, #3a1a7a 0%, #12062c 44%, #000 78%); }
+  .px { font-family: 'Courier New', Courier, monospace; font-weight: 700; text-align: center; left: 0; width: 1920px; }
+  #pill { left: 510px; top: 640px; width: 900px; height: 130px; border-radius: 26px; background: #ff4fd8; box-shadow: 0 12px 0 #8a1f73, 0 0 80px rgba(255,79,216,.7); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 54px; color: #fff; text-shadow: 4px 4px 0 rgba(0,0,0,.45); }
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="spark"></div>
+<div id="flash"></div>
+
+<div class="a" id="headwrap" style="left:80px;top:62px;width:1180px;z-index:5">
+  <div class="kicker" id="hk"></div>
+  <div class="head" id="ht" style="margin-top:12px"></div>
+</div>
+
+<div class="a" id="chat">
+  <div id="bar"><i></i>Claude<span><b>●</b> Free Fall Frank connector</span></div>
+  <div id="log"></div>
+</div>
+
+<div class="a" id="phone"><div id="screen"><img id="rec" alt=""></div></div>
+<div class="a" id="cta"><b>freefallfrank.com/build</b> · free · ask Claude for a level</div>
+
+<!-- The end card: the game's own title lettering, what to do, the address, the Glyphh mark -->
+<div id="end">
+  <div class="a px" id="e1" style="top:150px;font-size:110px;color:#35e8ff;text-shadow:8px 8px 0 #0a0812">FREE FALL</div>
+  <div class="a px" id="e2" style="top:250px;font-size:210px;color:#ffd23f;text-shadow:12px 12px 0 #0a0812;letter-spacing:-4px">FRANK</div>
+  <div class="a" id="e3" style="left:260px;top:500px;width:1400px;text-align:center;font-size:62px;font-weight:700;letter-spacing:-0.02em">Build your own level. Just ask Claude.</div>
+  <div class="a" id="pill">freefallfrank.com/build</div>
+  <div class="a mono" id="e5" style="left:0;top:820px;width:1920px;text-align:center;font-size:34px;color:#c8c8c8">free to play · free to build · every level gets a link and a leaderboard</div>
+  <div class="a" id="e6" style="left:0;top:930px;width:1920px;display:flex;align-items:center;justify-content:center;gap:18px;font-family:'JetBrains Mono',monospace;font-size:28px;color:#999">a game from <img src="glyphh-logo-text-white.png" alt="glyphh" style="height:42px"></div>
+</div>
+
+<script>
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const ease = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+const e = (t, a, b) => ease((t - a) / (b - a));
+const S = (id) => document.getElementById(id);
+const mk = (parent, cls, css) => { const n = document.createElement('div'); n.className = cls; n.style.cssText = css || ''; parent.appendChild(n); return n; };
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+// Which ad this is comes from render.mjs (window.AD, the "claude" cut in cuts.mjs). Its times are in beats.
+const AD = window.AD || { bpm: 96, seg: [], heads: [], chat: [], end: 1, dur: 2 };
+const B = 60 / AD.bpm;
+const CLIP = window.CLIPS || {};
+const SEG = AD.seg.map(([a, b, c]) => [a * B, b * B, c]);
+const END = AD.end * B, DUR = AD.dur * B;
+const HEADS = AD.heads.map(([a, b, k, h]) => [a * B, b * B, k, h]);
+const CUTS = SEG.map((s) => s[0]).concat([END]);
+const segAt = (t) => SEG.find((s) => t >= s[0] && t < s[1]);
+
+// the conversation: every line is in the page from the start and shown from its beat on; a typed one fills in letter by letter
+const CHAT = AD.chat.map(([at, who, text, over]) => {
+  const n = mk(S('log'), who === 'tool' ? 'tool' : 'msg ' + who);
+  n.style.display = 'none';
+  return { at: at * B, who, text, over: (over || 0) * B, n, said: who === 'tool' ? over : '' };
+});
+const LINK = 'freefallfrank.com/?level=' + ((AD.made && AD.made.level.id) || '');
+
+let gs = 7; const gr = () => (gs = (gs * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+const SPK = ['#ffd76a', '#ff5fa2', '#ffffff', '#a48cff', '#35e8ff'];
+const sparks = Array.from({ length: 70 }, () => {
+  const s = 3 + gr() * 7, c = SPK[Math.floor(gr() * 5)];
+  return { x: gr() * 1920, y: gr() * 1080, v: 40 + gr() * 110, k: 1 + gr() * 3, ph: gr() * 6.28, n: mk(S('spark'), 'sp', `width:${s}px;height:${s}px;background:${c};box-shadow:0 0 ${s * 2.5}px ${c}`) };
+});
+
+const rec = S('rec');
+let shown = '';
+const rise = (n, t, a, d) => { const p = e(t, a, a + (d || 0.3)); n.style.opacity = p; n.style.transform = `translateY(${(1 - p) * 36}px) scale(${1.1 - 0.1 * p})`; };
+
+window.seek = (t) => {
+  const fr = t / B - Math.floor(t / B), bar = Math.floor(t / B) % 4 === 0 ? 1 : 0.65, pulse = Math.exp(-fr * 5) * bar;
+  const a = t * 0.5;
+  S('bg').style.background = `radial-gradient(900px 900px at ${84 + 8 * Math.sin(a)}% ${12 + 8 * Math.cos(a)}%, rgba(124,92,255,${0.3 + 0.28 * pulse}), transparent 70%),` +
+    `radial-gradient(900px 900px at ${6 + 8 * Math.cos(a * 0.8)}% ${88 + 6 * Math.sin(a * 0.8)}%, rgba(255,95,162,${0.2 + 0.22 * pulse}), transparent 70%),` +
+    `radial-gradient(600px 600px at ${56 + 6 * Math.sin(a * 1.3)}% 96%, rgba(255,215,106,${0.08 + 0.12 * pulse}), transparent 70%), #000`;
+  for (const s of sparks) {
+    const y = ((s.y - t * s.v) % 1080 + 1080) % 1080, tw = 0.5 + 0.5 * Math.sin(t * s.k + s.ph);
+    s.n.style.transform = `translate(${s.x}px, ${y}px) scaleY(${1 + s.v / 40})`;
+    s.n.style.opacity = 0.1 + 0.3 * tw + 0.3 * pulse;
+  }
+  let fl = 0;
+  for (const c of CUTS) if (c > 0 && t >= c && t < c + 0.3) fl = Math.max(fl, (1 - (t - c) / 0.3) * 0.4);
+  S('flash').style.opacity = fl;
+
+  const hd = HEADS.find((h) => t >= h[0] && t < h[1]);
+  if (hd) {
+    S('hk').textContent = hd[2]; S('ht').innerHTML = hd[3];
+    const hp = e(t, hd[0], hd[0] + 0.28);
+    S('headwrap').style.opacity = Math.min(hp, 1 - e(t, hd[1] - 0.12, hd[1]));
+    S('headwrap').style.transformOrigin = '0 50%';
+    S('headwrap').style.transform = `translateY(${(1 - hp) * 30}px) scale(${1 + (1 - hp) * 0.08})`;
+  } else S('headwrap').style.opacity = 0;
+
+  // the chat: lines appear on their beat; yours and Claude's are typed out, a tool row gets its tick a moment later
+  for (const m of CHAT) {
+    const d = t - m.at;
+    if (d < 0) { m.n.style.display = 'none'; continue; }
+    m.n.style.display = '';
+    m.n.style.opacity = clamp(d / 0.18);
+    if (m.who === 'tool') {
+      const done = d > 0.55;
+      m.n.innerHTML = '<span>' + (done ? '<u>✓</u>' : '<span style="opacity:' + (0.4 + 0.6 * Math.abs(Math.sin(t * 12))) + '">…</span>') + '</span><b>' + esc(m.text) + '</b>' + (done ? '<span>' + esc(m.said) + '</span>' : '');
+    } else {
+      const k = m.over ? clamp(d / m.over) : 1, shownText = m.text.slice(0, Math.round(m.text.length * k));
+      let html = esc(shownText) + (k < 1 ? '<span class="caret"></span>' : '');
+      if (k >= 1 && /Here is your link\.$/.test(m.text)) html += '<br><span class="link">' + esc(LINK) + '</span>';
+      m.n.innerHTML = html;
+    }
+  }
+  const chatOut = e(t, END - 0.05, END + 0.2);
+  S('chat').style.opacity = e(t, 0.5 * B, 1.5 * B) * (1 - chatOut);
+  S('chat').style.transform = `translateY(${(1 - e(t, 0.5 * B, 1.5 * B)) * 40}px)`;
+
+  // the phone: a punch on every cut
+  const sg = segAt(t), since = sg ? t - sg[0] : 9, punch = Math.exp(-since * 9) * 0.05;
+  S('phone').style.opacity = 1 - chatOut;
+  S('phone').style.transform = `scale(${1 + punch + 0.006 * pulse})`;
+  S('phone').style.boxShadow = `0 0 ${60 + 50 * pulse}px rgba(124,92,255,${0.5 + 0.35 * pulse})`;
+  S('cta').style.opacity = (0.75 + 0.25 * pulse) * (1 - chatOut);
+
+  // the end card
+  S('end').style.opacity = chatOut;
+  rise(S('e1'), t, END + 0.05); rise(S('e2'), t, END + 0.5 * B);
+  rise(S('e3'), t, END + 1.5 * B); rise(S('pill'), t, END + 2.2 * B); rise(S('e5'), t, END + 3 * B); rise(S('e6'), t, END + 3.6 * B);
+  const pp = e(t, END + 2.2 * B, END + 2.2 * B + 0.3);
+  S('pill').style.transform = `translateY(${(1 - pp) * 36}px) scale(${(1.1 - 0.1 * pp) * (1 + 0.04 * pulse)})`;
+  S('e2').style.transform += ` rotate(${Math.sin(t * 7) * 1}deg)`;
+
+  if (!sg || !CLIP[sg[2]]) return undefined;
+  const f = Math.min(CLIP[sg[2]].frames - 1, Math.floor((t - sg[0]) * 30 + 1e-6)), src = `${window.CLIPDIR || ''}${sg[2]}/${String(f).padStart(5, '0')}.jpg`;
+  if (src === shown) return undefined;
+  shown = src;
+  rec.src = src;
+  return rec.decode().catch(() => undefined);
+};
+window.DUR = DUR;
+window.seek(0);
+</script>
+</body>
+</html>

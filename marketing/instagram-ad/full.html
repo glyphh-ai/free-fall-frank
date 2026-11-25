@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A full-screen reel</title>
+<style>
+  /* Nothing but the game, the whole height of a phone, with a line or two of words over it and a card at the end.
+     What it shows comes from window.AD (a cut of cuts.mjs) and the frames a capture script saved:
+       AD.seg   [from, to, clip] in beats      AD.lines [from, to, words] in beats     AD.end, AD.dur in beats
+       AD.title, AD.url, AD.card (the lines of the end card), AD.look ('frank' or 'bams') */
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  #rec { position: absolute; inset: 0; width: 1080px; height: 1920px; object-fit: cover; }
+  #shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.42), transparent 22%, transparent 62%, rgba(0,0,0,0.6)); }
+  #flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
+  #line { position: absolute; left: 60px; right: 60px; text-align: center; opacity: 0; }
+  #line span { display: inline-block; padding: 26px 46px 30px; }
+  #end { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px; text-align: center; opacity: 0; padding: 0 70px; }
+  #end > div { opacity: 0; }
+  /* Free Fall Frank: the game's own blocky yellow and pink on black */
+  /* (the words sit at the bottom: Frank falls through the top of the screen, and nothing may cover him) */
+  body.frank #line { bottom: 120px; font: 700 64px/1.1 "Courier New", Courier, monospace; color: #fff; }
+  body.frank #line span { background: #0a0812; border: 6px solid #ffd23f; box-shadow: 10px 10px 0 #ff4fd8; }
+  body.frank #end { background: linear-gradient(#2d1b70, #1a1147 55%, #0c0722); font-family: "Courier New", Courier, monospace; color: #f1eefc; }
+  body.frank #e1 { font-weight: 700; font-size: 150px; line-height: 0.95; color: #ffd23f; text-shadow: 9px 9px 0 #0a0812; } body.frank #e1 small { display: block; font-size: 84px; color: #35e8ff; }
+  body.frank .cl { font-weight: 700; font-size: 62px; line-height: 1.2; } body.frank #e4 { font-weight: 700; font-size: 66px; color: #fff; background: #ff4fd8; border: 6px solid #0a0812; padding: 26px 44px; box-shadow: inset 0 -12px 0 rgba(0,0,0,0.28), inset 0 10px 0 rgba(255,255,255,0.28); }
+  /* Bams & Brags: cream, rose and a fine serif */
+  body.bams #line { bottom: 64px; font: italic 700 88px/1.1 Didot, "Bodoni 72", Georgia, serif; color: #fff; text-shadow: 0 4px 30px rgba(0,0,0,0.75), 0 2px 6px rgba(0,0,0,0.6); }
+  body.bams #line span { background: rgba(30,18,28,0.5); border-radius: 999px; padding: 26px 60px 34px; }
+  body.bams #end { background: radial-gradient(120% 80% at 50% 20%, #5b2440, #2a1420 60%, #160a11); color: #fffaf5; font-family: Didot, "Bodoni 72", Georgia, serif; }
+  body.bams #e1 { font-style: italic; font-weight: 700; font-size: 170px; line-height: 1; } body.bams #e1 i { color: #ff8fbd; }
+  body.bams .cl { font: 500 58px/1.3 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #f3e6ea; } body.bams #e4 { font: 700 62px -apple-system, "Helvetica Neue", Arial, sans-serif; letter-spacing: 0.02em; color: #fff; background: linear-gradient(180deg, #ee6a9f, #d6457f 55%, #b9306a); border-radius: 999px; padding: 30px 64px; box-shadow: 0 8px 0 #8e2350, 0 20px 50px rgba(0,0,0,0.5); }
+</style>
+</head>
+<body>
+<img id="rec" alt="">
+<div id="shade"></div>
+<div id="line"><span id="words"></span></div>
+<div id="flash"></div>
+<div id="end"><div id="e1"></div><div id="e2" class="cl"></div><div id="e3" class="cl"></div><div id="e4"></div></div>
+<script>
+const AD = window.AD, CLIP = window.CLIPS, B = 60 / AD.bpm, S = (id) => document.getElementById(id);
+const clamp = (x) => Math.max(0, Math.min(1, x)), e = (t, a, b) => { const p = clamp((t - a) / (b - a)); return p * p * (3 - 2 * p); };
+const SEG = AD.seg.map((s) => [s[0] * B, s[1] * B, s[2]]), LINES = AD.lines.map((l) => [l[0] * B, l[1] * B, l[2]]), END = AD.end * B, DUR = AD.dur * B;
+document.body.className = AD.look;
+S('e1').innerHTML = AD.title; S('e2').textContent = AD.card[0]; S('e3').textContent = AD.card[1]; S('e4').textContent = AD.url;
+const rec = S('rec');
+let shown = '';
+const rise = (n, t, a) => { const p = e(t, a, a + 0.35); n.style.opacity = p; n.style.transform = `translateY(${(1 - p) * 50}px)`; };
+window.seek = (t) => {
+  // a soft flash on each cut
+  let fl = 0;
+  for (const s of SEG) if (s[0] > 0 && t >= s[0] && t < s[0] + 0.25) fl = Math.max(fl, (1 - (t - s[0]) / 0.25) * (AD.look === 'frank' ? 0.5 : 0.28));
+  S('flash').style.opacity = fl;
+  const ln = LINES.find((l) => t >= l[0] && t < l[1]);
+  if (ln) { S('words').textContent = ln[2]; const p = e(t, ln[0], ln[0] + 0.3); S('line').style.opacity = Math.min(p, 1 - e(t, ln[1] - 0.25, ln[1])); S('line').style.transform = `translateY(${(1 - p) * 40}px)`; } else S('line').style.opacity = 0;
+  S('end').style.opacity = e(t, END - 0.05, END + 0.3);
+  rise(S('e1'), t, END + 0.1); rise(S('e2'), t, END + 1 * B); rise(S('e3'), t, END + 2 * B); rise(S('e4'), t, END + 3 * B);
+  const sg = SEG.find((s) => t >= s[0] && t < s[1]) || SEG[SEG.length - 1];
+  const f = Math.min(CLIP[sg[2]].frames - 1, Math.max(0, Math.floor((t - sg[0]) * 30 + 1e-6))), src = `${window.CLIPDIR || ''}${sg[2]}/${String(f).padStart(5, '0')}.jpg`;
+  if (src === shown) return undefined;
+  shown = src; rec.src = src;
+  return rec.decode().catch(() => undefined);
+};
+window.DUR = DUR;
+window.seek(0);
+</script>
+</body>
+</html>

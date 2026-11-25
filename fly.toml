@@ -1,0 +1,41 @@
+app = "free-fall-frank"
+primary_region = "dfw"
+
+[env]
+  PUBLIC_URL = "https://freefallfrank.com"
+
+# accounts and purchases live in SQLite on this volume
+[mounts]
+  source = "fff_data"
+  destination = "/data"
+
+# Before a deploy replaces the running machine, Fly runs this in a machine of its own, built from the new image,
+# with the app's secrets: the schema, every table and statement, every made level, against the real database
+# (server.js, check()). It binds no port and changes no row. Anything but exit 0 stops the deploy, and the machine
+# that was running keeps running the build before. Deploy with ./deploy.sh (server.js, "SAFE BUILDS").
+[deploy]
+  release_command = "node server.js --check"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  # 200 only when the database answers. Fly asks the machine itself, over the private network, while it is running:
+  # it tells a deploy that the new machine is really up, and takes a machine that has lost its database out of the
+  # way of requests. It is not a visitor: the machine is stopped when no REQUESTS come through Fly's proxy, which
+  # this does not go through, and a stopped machine is not asked. (After the first deploy with this, look once that
+  # the machine still stops when nobody plays: fly status. If it ever did not, take this block out; the release
+  # command above and deploy.sh's own look at /healthz would still stand.)
+  [[http_service.checks]]
+    method = "GET"
+    path = "/healthz"
+    grace_period = "15s"
+    interval = "30s"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

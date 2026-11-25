@@ -1,0 +1,6 @@
+{
+  "what": "A made level as the server keeps it (the design core.js customLevel() gave back), written by --capture.",
+  "captured": {"made_v":1,"core_js":"7144dd095e507506","on":"2026-11-18"},
+  "print": "21266bbf719110c6",
+  "spec": {"v":1,"name":"The Maze","author":"Fixture","world":23,"seed":237250,"sections":[{"kind":"maze","beats":32,"speed":9,"wide":true,"look":"vents"},{"kind":"drop","beats":8},{"kind":"maze","beats":48,"speed":12,"wide":true,"look":"core"}]}
+}
